@@ -1,4 +1,4 @@
 ---
-headline: "The El-Aurian Atrium"
+headline: "The EL"
 cta: "TISCH RESERVIEREN"
 ---
