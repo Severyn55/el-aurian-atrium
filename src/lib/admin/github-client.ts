@@ -68,11 +68,24 @@ export class GitHubClient {
     const content = await res.text();
 
     let sha: string | null = null;
-    try {
-      sha = await this.getFileSha(path);
-    } catch (e) {
-      console.warn('[GitHubClient] loadFile: sha lookup failed for', path, e);
-      sha = null;
+
+    // GitHub often includes the blob SHA in the ETag header for raw contents fetches.
+    // This is more reliable than a separate JSON call in some cases (avoids parse issues).
+    const etag = res.headers.get('etag');
+    if (etag) {
+      const cleaned = etag.replace(/"/g, '').trim();
+      if (/^[0-9a-f]{40}$/.test(cleaned)) {
+        sha = cleaned;
+      }
+    }
+
+    if (!sha) {
+      try {
+        sha = await this.getFileSha(path);
+      } catch (e) {
+        console.warn('[GitHubClient] loadFile: sha lookup failed for', path, e);
+        sha = null;
+      }
     }
 
     return { content, sha, raw: content };
@@ -83,8 +96,14 @@ export class GitHubClient {
    */
   async getFileSha(path: string): Promise<string | null> {
     const url = `https://api.github.com/repos/${this.repo}/contents/${path}`;
+    // Use raw fetch (reliable, same as loadFile) and extract sha from ETag header if present.
+    // Avoids any JSON metadata parse issues entirely for sha retrieval.
     const res = await fetch(url, {
-      headers: this.getHeaders(),
+      headers: {
+        'Authorization': this.getAuthHeader(),
+        'Accept': 'application/vnd.github.v3.raw',
+        'User-Agent': GITHUB_USER_AGENT,
+      },
     });
 
     if (!res.ok) {
@@ -93,20 +112,18 @@ export class GitHubClient {
       throw new Error(`getFileSha failed ${res.status}: ${t}`);
     }
 
-    let data: any;
-    try {
-      data = await res.json();
-    } catch (parseErr) {
-      // Defensive: some responses (rate limit edge cases, auth fallback, Accept quirks, proxies)
-      // can return 200 with non-JSON body. Treat as "sha unknown" so load can still succeed.
-      // The sha is primarily needed for subsequent saves (which have their own re-fetch fallback).
-      try {
-        const t = await res.text().catch(() => '');
-        console.warn('[GitHubClient] getFileSha: JSON parse failed for', path, 'body prefix:', (t || '').slice(0, 80));
-      } catch {}
-      return null;
+    // Consume the body (we only want the header for sha)
+    await res.text().catch(() => '');
+
+    const etag = res.headers.get('etag');
+    if (etag) {
+      const cleaned = etag.replace(/"/g, '').trim();
+      if (/^[0-9a-f]{40}$/.test(cleaned)) {
+        return cleaned;
+      }
     }
-    return data.sha || null;
+
+    return null;
   }
 
   /**
