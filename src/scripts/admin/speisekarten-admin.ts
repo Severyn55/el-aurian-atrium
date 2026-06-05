@@ -144,6 +144,18 @@ async function loadData() {
 
     // Begegnungen has no collapse, leave as is
 
+    // Auto-load all other modules so that after the main "Aktuelle Daten laden" button,
+    // every editor has fresh live data + its sha populated. This prevents "sha wasn't supplied"
+    // on saves in labels/konzept/tages/menus/portraits when user didn't click every per-card load button.
+    // Hero and others will show their "Geladen ✓" in their own status areas as side-effect.
+    (async () => {
+      try { await loadHeroArea(); } catch (e) { console.warn('auto hero load', e); }
+      try { await loadLabelsArea(); } catch (e) { console.warn('auto labels load', e); }
+      try { await loadKonzeptArea(); } catch (e) { console.warn('auto konzept load', e); }
+      try { await loadTagesablaufArea(); } catch (e) { console.warn('auto tagesablauf load', e); }
+      try { await loadBegegnungenArea(); } catch (e) { console.warn('auto begegnungen load', e); }
+    })();
+
     loadStatus.textContent = 'Daten erfolgreich geladen. Alle Editoren sind zur besseren Übersicht zugeklappt.';
     loadStatus.style.color = '#4ade80';
   } catch (e) {
@@ -155,8 +167,7 @@ async function loadData() {
 
 async function loadMenu(type, path) {
   const client = getGitHubClient();
-  // Uses the client's loadFile (raw + protected sha lookup that tolerates parse errors on the metadata response)
-  const raw = await client.loadFile(path); // throws regular Error on !ok for the content fetch itself
+  const raw = await client.loadFile(path); // single json metadata request → reliable sha + decoded content
 
   const yamlText = raw.content;
 
@@ -370,6 +381,12 @@ async function saveData(opts = {}) {
       const s2 = await client.getFileShaIfNeeded('src/content/dinner/dinner.md'); if (s2) currentData.dinner.sha = s2;
     } catch(e){ console.warn('menu sha refresh failed, proceeding with loaded shas', e); }
 
+    if (!currentData.lunch.sha || !currentData.dinner.sha) {
+      saveStatus.textContent = 'Kein SHA für Menü-Dateien. Bitte zuerst "Aktuelle Daten laden" klicken.';
+      saveStatus.style.color = '#f87171';
+      return;
+    }
+
     const client = getGitHubClient();
     const lunchRes = await getGitHubClient().commitFile(
       'src/content/lunch/lunch.md', 
@@ -468,6 +485,11 @@ async function saveHeroArea() {
   const status = document.getElementById('hero-status'); if (!status) return;
   let sha = currentData.hero ? currentData.hero.sha : null;
   try { const f = await getGitHubClient().getFileShaIfNeeded('src/content/hero/hero.md'); if (f) sha = f; } catch(e){}
+  if (!sha) {
+    status.textContent = 'Kein SHA für Hero. Bitte zuerst "Daten laden" (oder Haupt-Button) klicken.';
+    status.style.color = '#f87171';
+    return;
+  }
   const data = { headline: (document.getElementById('hero-headline')||{}).value.trim(), cta: (document.getElementById('hero-cta')||{}).value.trim() || 'TISCH RESERVIEREN' };
   status.textContent = 'Speichere...'; status.style.color = '#A89F90';
   try {
@@ -615,6 +637,11 @@ async function saveLabelsArea() {
   const st = document.getElementById('labels-status'); if (!st) return;
   let sha = currentData.labels ? currentData.labels.sha : null;
   try { const f = await getGitHubClient().getFileShaIfNeeded('src/content/labels/main.md'); if (f) sha = f; } catch(e){}
+  if (!sha) {
+    st.textContent = 'Kein SHA für Labels. Bitte zuerst "Daten laden" (oder Haupt-Button) klicken.';
+    st.style.color = '#f87171';
+    return;
+  }
   const ins = document.querySelectorAll('#labels-editor input[data-label-key], #labels-editor textarea[data-label-key]'); const d = {};
   ins.forEach(i => d[i.dataset.labelKey] = i.value.trim());
   st.textContent = 'Speichere...'; st.style.color = '#A89F90';
@@ -684,6 +711,11 @@ async function saveKonzeptArea() {
   const st = document.getElementById('konzept-status'); if (!st) return;
   let sha = currentData.konzept ? currentData.konzept.sha : null;
   try { const f = await getGitHubClient().getFileShaIfNeeded('src/content/konzept/konzept.md'); if (f) sha = f; } catch(e){}
+  if (!sha) {
+    st.textContent = 'Kein SHA für Konzept. Bitte zuerst "Daten laden" (oder Haupt-Button) klicken.';
+    st.style.color = '#f87171';
+    return;
+  }
   const data = { headline: (document.getElementById('konzept-headline') || {}).value.trim() };
   const body = (document.getElementById('konzept-body') || {}).value || '';
   st.textContent = 'Speichere...'; st.style.color = '#A89F90';
@@ -751,6 +783,11 @@ async function saveTagesablaufArea() {
   const st = document.getElementById('tagesablauf-status'); if (!st) return;
   let sha = currentData.tagesablauf ? currentData.tagesablauf.sha : null;
   try { const f = await getGitHubClient().getFileShaIfNeeded('src/content/tagesablauf/tagesablauf.md'); if (f) sha = f; } catch(e){}
+  if (!sha) {
+    st.textContent = 'Kein SHA für Tagesablauf. Bitte zuerst "Daten laden" (oder Haupt-Button) klicken.';
+    st.style.color = '#f87171';
+    return;
+  }
 
   const textEl = document.getElementById('tagesablauf-text');
   const data = {
