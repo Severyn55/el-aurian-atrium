@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "astro dev",
         "start": "astro dev",
-        "build": "astro build && npx esbuild src/scripts/admin/speisekarten-admin.ts --bundle --format=esm --outfile=dist/admin-app.js --platform=browser --target=es2020 --minify",
+        "build": "astro build && esbuild src/scripts/admin/speisekarten-admin.ts --bundle --format=esm --outfile=dist/admin-app.js --platform=browser --target=es2020 --minify",
         "preview": "astro preview",
         "test": "vitest",
         "test:run": "vitest run",
