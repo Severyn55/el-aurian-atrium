@@ -48,12 +48,16 @@ export class GitHubClient {
   async loadFile(path: string): Promise<{ content: string; sha: string | null; raw: string }> {
     const url = `https://api.github.com/repos/${this.repo}/contents/${path}`;
 
-    // Prefer metadata JSON (gives sha + base64 content in one request, reliable).
-    // If JSON parse fails (e.g. GitHub returns raw body despite Accept, or malformed response
-    // starting with '---' causing "No number after minus sign in JSON"), fall back to raw content
-    // + separate getFileSha (which has its own defensive handling).
-    let res = await fetch(url, {
-      headers: this.getHeaders(),
+    // Always use raw for content (reliable text, avoids JSON parse issues when GitHub
+    // returns non-metadata body for some tokens/requests, e.g. content starting with '---'
+    // causing "No number after minus sign in JSON").
+    // sha is fetched separately via getFileSha (which has defensive catch for bad JSON responses).
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': this.getAuthHeader(),
+        'Accept': 'application/vnd.github.v3.raw',
+        'User-Agent': GITHUB_USER_AGENT,
+      },
     });
 
     if (!res.ok) {
@@ -61,42 +65,14 @@ export class GitHubClient {
       throw new Error(`Load failed ${res.status}: ${t}`);
     }
 
-    let content = '';
+    const content = await res.text();
+
     let sha: string | null = null;
-
     try {
-      const data = await res.json();
-      sha = data.sha || null;
-      if (data.encoding === 'base64' && data.content) {
-        content = base64ToUtf8(data.content);
-      } else if (data.download_url) {
-        const rawRes = await fetch(data.download_url, { headers: { 'User-Agent': GITHUB_USER_AGENT } });
-        content = await rawRes.text();
-      } else {
-        content = data.content || '';
-      }
-    } catch (parseErr) {
-      console.warn('[GitHubClient] loadFile: metadata JSON parse failed for', path, '- falling back to raw + sha fetch. Error was:', parseErr.message || parseErr);
-      // Re-do fetch with explicit raw (previous body already consumed)
-      const rawRes = await fetch(url, {
-        headers: {
-          'Authorization': this.getAuthHeader(),
-          'Accept': 'application/vnd.github.v3.raw',
-          'User-Agent': GITHUB_USER_AGENT,
-        },
-      });
-      if (!rawRes.ok) {
-        const t = await rawRes.text().catch(() => '');
-        throw new Error(`Load failed (raw fallback) ${rawRes.status}: ${t}`);
-      }
-      content = await rawRes.text();
-
-      try {
-        sha = await this.getFileSha(path);
-      } catch (shaErr) {
-        console.warn('getFileSha in fallback also failed for', path, shaErr);
-        sha = null;
-      }
+      sha = await this.getFileSha(path);
+    } catch (e) {
+      console.warn('[GitHubClient] loadFile: sha lookup failed for', path, e);
+      sha = null;
     }
 
     return { content, sha, raw: content };
