@@ -1,0 +1,16 @@
+﻿# .gitattributes - control GitHub language stats
+
+# Mark admin-extracted code and tests as generated so they don't count
+# toward language percentages (they used to be inside .astro files in the old repo).
+# This keeps the "Astro-heavy" feel of the project.
+
+src/lib/admin/** linguist-generated=true
+src/scripts/admin/speisekarten-admin.ts linguist-generated=true
+**/*.test.ts linguist-generated=true
+
+# Documentation folder not part of the deliverable code
+docs/** linguist-generated=true
+
+# Make sure .astro files are correctly attributed
+*.astro linguist-detectable=true
+*.astro linguist-language=Astro
