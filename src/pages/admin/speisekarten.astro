@@ -77,9 +77,10 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
 
 <script type="module">
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // Use @ alias (configured in astro.config) for reliable resolution in both dev and prod.
-  // Astro/Vite will rewrite the import to the correct bundled asset URL (with base path).
-  import { initSpeisekartenAdmin } from '@/scripts/admin/speisekarten-admin';
+  // Use relative import from this page's location (pages/admin/) so Astro can correctly
+  // bundle and rewrite the path with the base URL (/el-aurian-atrium/) in production.
+  // Relative: from pages/admin/ -> ../../scripts/admin/speisekarten-admin
+  import { initSpeisekartenAdmin } from '../../scripts/admin/speisekarten-admin';
   initSpeisekartenAdmin();
 </script>
 
