@@ -71,10 +71,6 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
     <!-- Portraits Manager (extracted component) -->
     <PortraitsManager />
 
-  </div>
-</div>
-</Layout>
-
 <script type="module">
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
   // Use static relative import from this page (pages/admin/). Astro processes static
@@ -84,6 +80,10 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
   import { initSpeisekartenAdmin } from '../../scripts/admin/speisekarten-admin';
   initSpeisekartenAdmin();
 </script>
+
+  </div>
+</div>
+</Layout>
 
 
 
