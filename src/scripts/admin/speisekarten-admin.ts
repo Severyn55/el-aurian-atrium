@@ -145,38 +145,15 @@ async function loadData() {
 }
 
 async function loadMenu(type, path) {
-  const authHeader = token.startsWith('github_pat_') 
-    ? `Bearer ${token}` 
-    : `token ${token}`;
+  const client = getGitHubClient();
+  // Uses the client's loadFile (raw + protected sha lookup that tolerates parse errors on the metadata response)
+  const raw = await client.loadFile(path); // throws regular Error on !ok for the content fetch itself
 
-  // Get raw content reliably (this has worked before)
-  const contentUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
-  const contentRes = await fetch(contentUrl, {
-    headers: {
-      'Authorization': authHeader,
-      'Accept': 'application/vnd.github.v3.raw',
-      'User-Agent': 'Portfolio-Admin/1.0'
-    }
-  });
-
-  if (!contentRes.ok) {
-    const t = await contentRes.text();
-    throw new Error(`Failed to load content for ${type} (${contentRes.status}): ${t}`);
-  }
-
-  const yamlText = await contentRes.text();
-
-  // Get sha (tolerate failure - sha is only needed for later saves; display can work without it)
-  let sha: string | null = null;
-  try {
-    sha = await getGitHubClient().getFileSha(path);
-  } catch (e) {
-    console.warn('loadMenu: sha fetch failed for', path, e);
-  }
+  const yamlText = raw.content;
 
   const parsed = parseMenu(yamlText);
 
-  return { data: parsed, sha };
+  return { data: parsed, sha: raw.sha };
 }
 
 // getFileSha (tree-based) is now covered by GitHubClient.getFileSha / getLatestSha
