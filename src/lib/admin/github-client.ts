@@ -35,7 +35,7 @@ export class GitHubClient {
     return {
       'Authorization': this.getAuthHeader(),
       'Accept': accept,
-      'Content-Type': 'application/json',
+      // Note: Content-Type is set explicitly only on mutation requests (PUT/POST/PATCH) that send JSON bodies.
       'User-Agent': GITHUB_USER_AGENT,
     };
   }
@@ -61,8 +61,15 @@ export class GitHubClient {
     }
 
     const content = await res.text();
-    // SHA muss separat geholt werden (raw response hat keinen sha)
-    const sha = await this.getFileSha(path);
+    // SHA muss separat geholt werden (raw response hat keinen sha).
+    // Make it resilient: if the secondary metadata call fails (parse / rate / auth edge),
+    // still return the content so the editors can show data. Saves will re-resolve sha.
+    let sha: string | null = null;
+    try {
+      sha = await this.getFileSha(path);
+    } catch (e) {
+      console.warn('[GitHubClient] loadFile: sha lookup failed for', path, e);
+    }
 
     return { content, sha, raw: content };
   }
@@ -82,7 +89,19 @@ export class GitHubClient {
       throw new Error(`getFileSha failed ${res.status}: ${t}`);
     }
 
-    const data = await res.json();
+    let data: any;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      // Defensive: some responses (rate limit edge cases, auth fallback, Accept quirks, proxies)
+      // can return 200 with non-JSON body. Treat as "sha unknown" so load can still succeed.
+      // The sha is primarily needed for subsequent saves (which have their own re-fetch fallback).
+      try {
+        const t = await res.text().catch(() => '');
+        console.warn('[GitHubClient] getFileSha: JSON parse failed for', path, 'body prefix:', (t || '').slice(0, 80));
+      } catch {}
+      return null;
+    }
     return data.sha || null;
   }
 
@@ -107,7 +126,7 @@ export class GitHubClient {
 
     const putRes = await fetch(url, {
       method: 'PUT',
-      headers: this.getHeaders(),
+      headers: { ...this.getHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
 
@@ -136,7 +155,7 @@ export class GitHubClient {
   async createGitBlob(content: string, encoding: 'utf-8' | 'base64' = 'utf-8'): Promise<string> {
     const res = await fetch(`https://api.github.com/repos/${this.repo}/git/blobs`, {
       method: 'POST',
-      headers: this.getHeaders(),
+      headers: { ...this.getHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, encoding })
     });
     if (!res.ok) {
@@ -178,7 +197,7 @@ export class GitHubClient {
     yamlContent: string,
     commitMessage: string
   ): Promise<{ commit: any }> {
-    const headers = this.getHeaders();
+    const headers = { ...this.getHeaders(), 'Content-Type': 'application/json' };
 
     // 1. Create blobs
     const imageBlobSha = await this.createGitBlob(base64Image, 'base64');

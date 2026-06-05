@@ -166,8 +166,13 @@ async function loadMenu(type, path) {
 
   const yamlText = await contentRes.text();
 
-  // Get sha
-  const sha = await getGitHubClient().getFileSha(path);
+  // Get sha (tolerate failure - sha is only needed for later saves; display can work without it)
+  let sha: string | null = null;
+  try {
+    sha = await getGitHubClient().getFileSha(path);
+  } catch (e) {
+    console.warn('loadMenu: sha fetch failed for', path, e);
+  }
 
   const parsed = parseMenu(yamlText);
 
@@ -875,7 +880,12 @@ async function loadBegegnungenArea() {
       throw new Error('Konnte portraits.yaml nicht laden (Status ' + res.status + ')');
     }
 
-    const json = await res.json();
+    let json: any = {};
+    try {
+      json = await res.json();
+    } catch (e) {
+      console.warn('portraits sha json parse failed, continuing', e);
+    }
     currentBegegnungenYamlSha = json.sha || null;
 
     let yamlText = '';
