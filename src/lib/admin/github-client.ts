@@ -7,7 +7,7 @@
  * WICHTIG: Diese Schicht kennt immer noch den PAT direkt (wie im Original).
  */
 
-import { utf8ToBase64 } from './utils';
+import { utf8ToBase64, base64ToUtf8 } from './utils';
 import { GITHUB_USER_AGENT } from './constants';
 import type { CommitResult } from './types';
 
@@ -41,18 +41,15 @@ export class GitHubClient {
   }
 
   /**
-   * Lädt eine Datei raw + sha (verwendet für die meisten Editoren).
+   * Lädt eine Datei + sha in einem Request (json metadata gibt sha + base64 content).
+   * Dies ist zuverlässiger als separate raw + sha-Calls (vermeidet Race/Rate/Accept-Quirks).
+   * Fallback auf download_url für sehr große Dateien (>1MB), wo "content" omitted wird.
    */
   async loadFile(path: string): Promise<{ content: string; sha: string | null; raw: string }> {
-    const authHeader = this.getAuthHeader();
     const url = `https://api.github.com/repos/${this.repo}/contents/${path}`;
 
     const res = await fetch(url, {
-      headers: {
-        'Authorization': authHeader,
-        'Accept': 'application/vnd.github.v3.raw',
-        'User-Agent': GITHUB_USER_AGENT,
-      },
+      headers: this.getHeaders(), // default json → gibt sha + content (base64) + encoding
     });
 
     if (!res.ok) {
@@ -60,18 +57,19 @@ export class GitHubClient {
       throw new Error(`Load failed ${res.status}: ${t}`);
     }
 
-    const content = await res.text();
-    // SHA muss separat geholt werden (raw response hat keinen sha).
-    // Make it resilient: if the secondary metadata call fails (parse / rate / auth edge),
-    // still return the content so the editors can show data. Saves will re-resolve sha.
-    let sha: string | null = null;
-    try {
-      sha = await this.getFileSha(path);
-    } catch (e) {
-      console.warn('[GitHubClient] loadFile: sha lookup failed for', path, e);
+    const data = await res.json();
+    let content = '';
+    if (data.encoding === 'base64' && data.content) {
+      content = base64ToUtf8(data.content);
+    } else if (data.download_url) {
+      // Fallback für große Dateien
+      const rawRes = await fetch(data.download_url, { headers: { 'User-Agent': GITHUB_USER_AGENT } });
+      content = await rawRes.text();
+    } else {
+      content = data.content || '';
     }
 
-    return { content, sha, raw: content };
+    return { content, sha: data.sha || null, raw: content };
   }
 
   /**
