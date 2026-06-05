@@ -15,6 +15,8 @@ import LabelsEditor from '../../components/admin/LabelsEditor.astro';
 import KonzeptEditor from '../../components/admin/KonzeptEditor.astro';
 import PortraitsManager from '../../components/admin/PortraitsManager.astro';
 import MenuEditor from '../../components/admin/MenuEditor.astro';
+
+const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title="Studio | Portfolio Restaurant">
@@ -75,11 +77,11 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
 </div>
 </Layout>
 
-<script type="module">
+<script type="module" define:vars={{ baseUrl }}>
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // Use dynamic import + BASE_URL so the specifier works in both dev and production
-  // under subpath /el-aurian-atrium/. Static import specifiers cannot contain expressions.
-  const { initSpeisekartenAdmin } = await import(`${import.meta.env.BASE_URL}src/scripts/admin/speisekarten-admin`);
+  // baseUrl is injected at build time via define:vars so it works under subpath /el-aurian-atrium/
+  // and avoids import.meta.env in the client script (which can cause "undefined" at runtime).
+  const { initSpeisekartenAdmin } = await import(`${baseUrl}src/scripts/admin/speisekarten-admin`);
   initSpeisekartenAdmin();
 </script>
 
