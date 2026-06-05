@@ -77,11 +77,13 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
 
 <script type="module">
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // Use static relative import from this page (pages/admin/). Astro processes static
-  // imports in <script type="module"> at build time, bundles the TS, and rewrites the
-  // specifier to the correct hashed JS asset URL with the base path (/el-aurian-atrium/).
-  // This prevents 404s on source paths and "failed to resolve" errors in production.
-  import { initSpeisekartenAdmin } from '../../scripts/admin/speisekarten-admin';
+  // Use import.meta.glob with absolute-from-root specifier '/src/...' .
+  // Vite processes the glob at build time and the runtime loader prepends the base path
+  // when fetching the module. This ensures the script loads correctly under subpath
+  // /el-aurian-atrium/ without 404 or resolution errors. The specifier starts with /
+  // which is valid for module specifiers.
+  const adminModule = await import.meta.glob('/src/scripts/admin/speisekarten-admin.ts', { eager: false })['/src/scripts/admin/speisekarten-admin.ts']();
+  const { initSpeisekartenAdmin } = adminModule;
   initSpeisekartenAdmin();
 </script>
 
