@@ -63,6 +63,15 @@ let saveBtn: HTMLElement | null = null;
 let saveStatus: HTMLElement | null = null;
 let editor: HTMLElement | null = null;
 
+// Helper to sanitize errors shown to user (prevents leaking internal SyntaxError / JSON parse details from GitHub responses)
+function sanitizeLoadError(e: any): string {
+  let msg = (e && e.message) || String(e) || 'Unbekannter Fehler';
+  if (/JSON|SyntaxError|minus sign|position 1|No number after/i.test(msg)) {
+    return 'Fehler beim Kontaktieren der GitHub API (Details in Browser-Console). Token (mit Contents Read+Write), korrekter Repo-Name und existierende Content-Dateien prüfen. Warte ggf. und versuche erneut.';
+  }
+  return msg;
+}
+
 
 
 
@@ -139,7 +148,7 @@ async function loadData() {
     loadStatus.style.color = '#4ade80';
   } catch (e) {
     console.error(e);
-    loadStatus.textContent = 'Fehler beim Laden: ' + e.message;
+    loadStatus.textContent = 'Fehler beim Laden: ' + sanitizeLoadError(e);
     loadStatus.style.color = 'var(--admin-error)';
   }
 }
@@ -449,7 +458,7 @@ async function loadHeroArea() {
     const h = document.getElementById('hero-headline'); if (h) h.value = res.data.headline || '';
     const c = document.getElementById('hero-cta'); if (c) c.value = res.data.cta || '';
     status.textContent = 'Geladen ✓'; status.style.color = '#4ade80';
-  } catch (e) { console.error(e); status.textContent = 'Fehler: ' + (e.message || e); status.style.color = '#f87171'; }
+  } catch (e) { console.error(e); status.textContent = 'Fehler: ' + sanitizeLoadError(e); status.style.color = '#f87171'; }
 }
 
 async function saveHeroArea() {
