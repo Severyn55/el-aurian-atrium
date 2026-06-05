@@ -15,8 +15,6 @@ import LabelsEditor from '../../components/admin/LabelsEditor.astro';
 import KonzeptEditor from '../../components/admin/KonzeptEditor.astro';
 import PortraitsManager from '../../components/admin/PortraitsManager.astro';
 import MenuEditor from '../../components/admin/MenuEditor.astro';
-
-const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <Layout title="Studio | Portfolio Restaurant">
@@ -77,11 +75,11 @@ const baseUrl = import.meta.env.BASE_URL;
 </div>
 </Layout>
 
-<script type="module" define:vars={{ baseUrl }}>
+<script type="module">
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // baseUrl is injected at build time via define:vars so it works under subpath /el-aurian-atrium/
-  // and avoids import.meta.env in the client script (which can cause "undefined" at runtime).
-  const { initSpeisekartenAdmin } = await import(`${baseUrl}src/scripts/admin/speisekarten-admin`);
+  // Use @ alias (configured in astro.config) for reliable resolution in both dev and prod.
+  // Astro/Vite will rewrite the import to the correct bundled asset URL (with base path).
+  import { initSpeisekartenAdmin } from '@/scripts/admin/speisekarten-admin';
   initSpeisekartenAdmin();
 </script>
 
