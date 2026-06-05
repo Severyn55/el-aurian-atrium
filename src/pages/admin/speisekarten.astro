@@ -77,9 +77,9 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
 
 <script type="module">
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // Use BASE_URL to support both dev (/) and production with base path (/el-aurian-atrium/).
-  // Absolute /src/... broke production deploys under subpath.
-  import { initSpeisekartenAdmin } from `${import.meta.env.BASE_URL}src/scripts/admin/speisekarten-admin`;
+  // Use dynamic import + BASE_URL so the specifier works in both dev and production
+  // under subpath /el-aurian-atrium/. Static import specifiers cannot contain expressions.
+  const { initSpeisekartenAdmin } = await import(`${import.meta.env.BASE_URL}src/scripts/admin/speisekarten-admin`);
   initSpeisekartenAdmin();
 </script>
 
