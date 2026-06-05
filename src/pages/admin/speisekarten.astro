@@ -71,16 +71,6 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
     <!-- Portraits Manager (extracted component) -->
     <PortraitsManager />
 
-<script type="module">
-  // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // Use static relative import from this page's location so Astro can correctly
-  // bundle the TS at build time and rewrite the import specifier to the correct
-  // hashed asset URL including the base path (/el-aurian-atrium/_astro/...js).
-  // This prevents 404s on source paths like /src/... in production.
-  import { initSpeisekartenAdmin } from '../../scripts/admin/speisekarten-admin';
-  initSpeisekartenAdmin();
-</script>
-
   </div>
 </div>
 </Layout>

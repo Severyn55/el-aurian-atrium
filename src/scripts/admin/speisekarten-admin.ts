@@ -54,14 +54,14 @@ let currentData = { lunch: null, dinner: null, hero: null, labels: null, konzept
 let token = '';
 let repo = '';
 
-const loadBtn = document.getElementById('load-btn');
-const loadStatus = document.getElementById('load-status');
-const saveBtn = document.getElementById('save-btn');
-const saveStatus = document.getElementById('save-status');
-const editor = document.getElementById('editor');
-
-if (loadBtn) loadBtn.addEventListener('click', loadData);
-if (saveBtn) saveBtn.addEventListener('click', saveData);
+// Module-scope refs for DOM elements used by load/save functions via closure.
+// Assigned in deferred setup (see initSpeisekartenAdmin + setupDOM...) so that
+// it works even if the bundled script is hoisted by Astro into <head>.
+let loadBtn: HTMLElement | null = null;
+let loadStatus: HTMLElement | null = null;
+let saveBtn: HTMLElement | null = null;
+let saveStatus: HTMLElement | null = null;
+let editor: HTMLElement | null = null;
 
 
 
@@ -1202,7 +1202,7 @@ window.loadBegegnungenArea = loadBegegnungenArea;
 // Collapsible for Interface Texte (Labels) and Lange Texte (Konzept)
 // Same pattern as Speisekarten editor for consistency and space saving
 // ============================================
-(function initLabelsCollapse() {
+function initLabelsCollapse() {
   const content = document.getElementById('labels-editor-content');
   const btn = document.getElementById('toggle-labels-btn');
   const labelEl = document.getElementById('toggle-labels-label');
@@ -1253,9 +1253,9 @@ window.loadBegegnungenArea = loadBegegnungenArea;
     content.style.opacity = '0';
   }
   updateUI();
-})();
+}
 
-(function initKonzeptCollapse() {
+function initKonzeptCollapse() {
   const content = document.getElementById('konzept-editor-content');
   const btn = document.getElementById('toggle-konzept-btn');
   const labelEl = document.getElementById('toggle-konzept-label');
@@ -1316,13 +1316,13 @@ window.loadBegegnungenArea = loadBegegnungenArea;
     }
     return res;
   };
-})();
+}
 
 // ============================================
 // Collapsible for Speisekarten Editor (Lunch & Dinner)
 // Individual Klappmenüs so user can collapse one while editing the other
 // ============================================
-(function initMenuEditorCollapsibles() {
+function initMenuEditorCollapsibles() {
   function setupToggle(type) {
     const content = document.getElementById(`${type}-editor-content`);
     const btn = document.getElementById(`toggle-${type}-btn`);
@@ -1372,7 +1372,7 @@ window.loadBegegnungenArea = loadBegegnungenArea;
 
   setupToggle('lunch');
   setupToggle('dinner');
-})();
+}
 
 // Expose functions used in inline onclick handlers
 window.loadBegegnungenArea = loadBegegnungenArea;
@@ -1612,11 +1612,9 @@ async function handlePDFFile(file, type) {
   }
 }
 
-// Initialize PDF handlers (elements exist in the static lunch/dinner editor HTML)
-initPDFUploadHandlers();
-
 // Simple collapsible for Tagesablauf editor (for overview)
-(function initTagesablaufCollapse() {
+// (converted from IIFE to named function; called from deferred setup)
+function initTagesablaufCollapse() {
   const content = document.getElementById('tagesablauf-editor-content');
   const btn = document.getElementById('toggle-tagesablauf-btn');
   const labelEl = document.getElementById('toggle-tagesablauf-label');
@@ -1664,43 +1662,75 @@ initPDFUploadHandlers();
 
   // expose
   window.toggleTagesablaufEditor = handler;
-})();
+}
 
-  // === Expose functions for inline onclick handlers in the extracted components ===
-  // (window as any) to satisfy TS in module
-  (window as any).loadData = loadData;
-  (window as any).saveData = saveData;
-  (window as any).loadTagesablaufArea = loadTagesablaufArea;
-  (window as any).saveTagesablaufArea = saveTagesablaufArea;
-  (window as any).loadHeroArea = loadHeroArea;
-  (window as any).saveHeroArea = saveHeroArea;
-  (window as any).loadLabelsArea = loadLabelsArea;
-  (window as any).saveLabelsArea = saveLabelsArea;
-  (window as any).loadKonzeptArea = loadKonzeptArea;
-  (window as any).saveKonzeptArea = saveKonzeptArea;
-  (window as any).loadBegegnungenArea = loadBegegnungenArea;
-  (window as any).showAddPortraitForm = showAddPortraitForm;
-  (window as any).hideAddPortraitForm = hideAddPortraitForm;
-  (window as any).handlePortraitFileSelect = handlePortraitFileSelect;
-  (window as any).submitNewPortrait = submitNewPortrait;
-  (window as any).triggerBegegnungenDeploy = triggerBegegnungenDeploy;
-  (window as any).addCategory = addCategory;
-  (window as any).triggerManualDeploy = triggerManualDeploy;
-  (window as any).renderEditor = renderEditor;
-  (window as any).loadMenu = loadMenu;
+// === Expose functions for inline onclick handlers in the extracted components ===
+// These run at module evaluation time (early, even if script hoisted to <head>).
+// This ensures that static onclick="..." attributes in the .astro components find the globals
+// by the time the rest of the body is parsed and the user can click.
+(window as any).loadData = loadData;
+(window as any).saveData = saveData;
+(window as any).loadTagesablaufArea = loadTagesablaufArea;
+(window as any).saveTagesablaufArea = saveTagesablaufArea;
+(window as any).loadHeroArea = loadHeroArea;
+(window as any).saveHeroArea = saveHeroArea;
+(window as any).loadLabelsArea = loadLabelsArea;
+(window as any).saveLabelsArea = saveLabelsArea;
+(window as any).loadKonzeptArea = loadKonzeptArea;
+(window as any).saveKonzeptArea = saveKonzeptArea;
+(window as any).loadBegegnungenArea = loadBegegnungenArea;
+(window as any).showAddPortraitForm = showAddPortraitForm;
+(window as any).hideAddPortraitForm = hideAddPortraitForm;
+(window as any).handlePortraitFileSelect = handlePortraitFileSelect;
+(window as any).submitNewPortrait = submitNewPortrait;
+(window as any).triggerBegegnungenDeploy = triggerBegegnungenDeploy;
+(window as any).addCategory = addCategory;
+(window as any).triggerManualDeploy = triggerManualDeploy;
+(window as any).renderEditor = renderEditor;
+(window as any).loadMenu = loadMenu;
 
-  // Re-attach top level listeners
+// Defer DOM queries + listener attachment + collapsible inits + PDF handlers.
+// This is the key fix: if Astro hoists <script type="module" src="..."> (the admin entry)
+// into <head>, immediate getElementById would return null and attaches/collapsibles would be skipped.
+// By running on DOMContentLoaded (or immediately if already ready), #load-btn etc. exist
+// and the "Aktuelle Daten laden" (and toggles) will work.
+function setupDOMListenersAndCollapsibles() {
+  loadBtn = document.getElementById('load-btn') as HTMLElement | null;
+  loadStatus = document.getElementById('load-status') as HTMLElement | null;
+  saveBtn = document.getElementById('save-btn') as HTMLElement | null;
+  saveStatus = document.getElementById('save-status') as HTMLElement | null;
+  editor = document.getElementById('editor') as HTMLElement | null;
+
+  if (loadBtn) loadBtn.addEventListener('click', loadData);
+  if (saveBtn) saveBtn.addEventListener('click', saveData);
+
+  // Call the (now non-autoexec) collapsible and handler inits
+  if (typeof initLabelsCollapse === 'function') initLabelsCollapse();
+  if (typeof initKonzeptCollapse === 'function') initKonzeptCollapse();
+  if (typeof initMenuEditorCollapsibles === 'function') initMenuEditorCollapsibles();
+  if (typeof initTagesablaufCollapse === 'function') initTagesablaufCollapse();
+  if (typeof initPDFUploadHandlers === 'function') initPDFUploadHandlers();
+
+  // Re-attach defensively (idempotent)
   const loadBtnEl = document.getElementById('load-btn');
   const saveBtnEl = document.getElementById('save-btn');
   if (loadBtnEl) loadBtnEl.addEventListener('click', loadData);
   if (saveBtnEl) saveBtnEl.addEventListener('click', saveData);
+}
 
 // === Bootstrap entry point ===
-// The <script type="module"> in speisekarten.astro does: import { initSpeisekartenAdmin } from '...'; initSpeisekartenAdmin();
-// All real wiring (element lookups, event listeners, IIFEs for collapsibles, window.* hoists for inline onclicks) happens via top-level code
-// in this module (runs on import). This wrapper exists to satisfy the named import + call without throwing.
+// When this module is loaded via <script type="module" src=".../speisekarten-admin.ts"> in the .astro,
+// top-level code above (window hoists + fn defs) runs immediately.
+// Then we schedule the DOM-dependent setup safely.
 export function initSpeisekartenAdmin() {
-  // No-op or future deferred init can go here. Side-effects on module load already performed the admin setup.
-  // (Keeps compatibility with the controller pattern from the admin refactor.)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDOMListenersAndCollapsibles, { once: true });
+  } else {
+    setupDOMListenersAndCollapsibles();
+  }
 }
+
+// Auto-bootstrap when the script is included directly via src= (the pattern used in speisekarten.astro).
+// This ensures init runs without requiring a separate import + call in an inline script.
+initSpeisekartenAdmin();
 

@@ -4,6 +4,13 @@
  * Contains token/repo inputs, ToS warning, load button, manual deploy.
  * IDs are preserved for the main admin script to hook into.
  */
+// Compute the src for the admin bootstrap script:
+// - PROD: the bundled single-file produced by esbuild step (all deps inlined, served from dist root under base)
+// - DEV: the .ts source (Vite dev server transpiles on the fly and resolves its internal imports)
+const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+const adminSrc = import.meta.env.PROD
+  ? `${base}/admin-app.js`
+  : '/src/scripts/admin/speisekarten-admin.ts';
 ---
 
 <div class="admin-card mb-8">
@@ -69,3 +76,5 @@
     </div>
   </div>
 </div>
+
+<script type="module" src={adminSrc}></script>
