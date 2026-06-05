@@ -1,0 +1,119 @@
+---
+import ReservationModal from '../components/ReservationModal.astro';
+import '../styles/global.css';
+
+// Self-hosted fonts for better performance (no render-blocking Google Fonts)
+import '@fontsource/playfair-display/400.css';
+import '@fontsource/playfair-display/500.css';
+import '@fontsource/playfair-display/600.css';
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+
+// Preload the 500 weight (used on the big LCP heading)
+import playfair500 from '@fontsource/playfair-display/files/playfair-display-latin-500-normal.woff2?url';
+
+// Import hero images for early preloading
+import heroStillRaw from '../assets/images/hero/hero-still.jpg';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+
+    <!-- Meta Description (ToS-normed, factual) -->
+    <meta name="description" content="The El-Aurian Atrium auf Starbase 47 – privates Dining mit saisonaler Küche, ausgewählten Weinen und intimen Events." />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="The El-Aurian Atrium" />
+    <meta property="og:description" content="Privates Dining auf Starbase 47. Saisonale Küche und kuratierte Abende in kleinem Kreis." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={`${import.meta.env.BASE_URL || '/'}assets/originals/hero/hero-still.jpg`} />
+
+    <!-- Critical font preload for the LCP heading -->
+    <link
+      rel="preload"
+      href={`${import.meta.env.BASE_URL || '/'}fonts/playfair-display-heading-subset.woff2`}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+      fetchpriority="high"
+    />
+
+    <!-- Hero image preloads moved here for earlier discovery -->
+    <!-- These are injected by Hero.astro via <link> tags, but we can add hints here if needed -->
+  </head>
+
+  <style>
+    /* Base-aware font for LCP heading (hardcoded for this GitHub Pages subpath deploy) */
+    @font-face {
+      font-family: 'Playfair Display Heading';
+      src: url('/el-aurian-atrium/fonts/playfair-display-heading-subset.woff2') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+
+  <body class="bg-kk-bg text-kk-text overflow-x-hidden">
+    <!-- Skip Link (Accessibility) - Wird nur bei Tastatur-Fokus sichtbar -->
+    <a 
+      href="#main-content" 
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-1/2 focus:-translate-x-1/2 focus:z-[999] 
+             focus:px-5 focus:py-2.5 focus:bg-[#0F0D0A] focus:text-[#F4EDE3] focus:text-ui focus:tracking-button
+             focus:border focus:border-[#C5A46E]/50 focus:rounded-md focus:shadow-xl
+             focus:transition-all focus:duration-150"
+    >
+      Zum Hauptinhalt springen
+    </a>
+
+    <slot />
+
+    <!-- Global Reservation Modal -->
+    <ReservationModal />
+  </body>
+</html>
+
+<style is:global>
+  /* Motion Design Tokens */
+  :root {
+    --duration-fast: 120ms;
+    --duration-base: 220ms;
+    --duration-slow: 380ms;
+    --duration-lux: 650ms;
+
+    --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+    --ease-emphasized: cubic-bezier(0.23, 1.0, 0.32, 1);
+    --ease-decelerate: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-exit: cubic-bezier(0.4, 0.0, 1, 1);
+
+    /* ============================================
+       HERO HEIGHT TOKENS (final, breakpoint-based)
+       These are the single source of truth.
+    ============================================ */
+    --hero-height-mobile: 54dvh;
+    --hero-height-tablet: 58dvh;
+    --hero-height-desktop: 620px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --duration-fast: 10ms;
+      --duration-base: 10ms;
+      --duration-slow: 10ms;
+      --duration-lux: 10ms;
+    }
+  }
+
+  .serif {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+</style>

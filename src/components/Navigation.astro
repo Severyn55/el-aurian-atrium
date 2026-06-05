@@ -1,0 +1,144 @@
+---
+import DesktopNav from './DesktopNav.astro';
+import MobileMenu from './MobileMenu.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+// Labels from collection for nav strings
+import { getEntry } from 'astro:content';
+const labels = await getEntry('labels', 'main');
+---
+
+<nav class:list={[
+  'fixed top-0 left-0 right-0 z-10 py-4 xl:py-5 border-b border-white/10',  // Low z on mobile so the menu can escape the stacking context
+  'bg-[#0A0907]/80 backdrop-blur-md xl:bg-kk-bg/95',
+  className
+]}>
+  <div class="max-w-screen-2xl mx-auto px-8 xl:pl-8 pl-5 flex items-center justify-between">
+    
+    <!-- Logo (links to home) - hidden on mobile to avoid overlap with K-Menu trigger -->
+    <a href={`${import.meta.env.BASE_URL || '/'}`} class="hidden xl:flex items-center gap-x-3">
+      <img 
+        src={`${import.meta.env.BASE_URL || '/'}assets/originals/logo-white.avif`} 
+        alt="The El-Aurian Atrium" 
+        class="h-9 w-auto gold-frame !p-[3px] !rounded-lg"
+      >
+      <div class="label-tight text-[#A89F90] -mt-0.5">{labels?.data?.byline ?? 'BY SHIYAS'}</div>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <DesktopNav />
+
+    <!-- Right side actions -->
+    <div class="flex items-center gap-x-3">
+      <!-- Member CTA - hidden on mobile (available in K-Menu) -->
+      <a 
+        href="#member" 
+        class="hidden xl:inline-block px-5 py-2.5 text-sm tracking-widest bg-[#463C32] text-white rounded hover:bg-black transition-colors"
+      >
+        {labels?.data?.cta_member_werden ?? 'MEMBER WERDEN'}
+      </a>
+    </div>
+  </div>
+
+  <!-- K-Menu: Elegant permanent top-left corner trigger for mobile -->
+  <button
+    id="mobile-menu-button"
+    class="fixed top-3 left-3 z-[80] flex flex-col items-start xl:hidden text-left select-none transition-all duration-200 active:scale-[0.985]"
+    aria-label="Menü öffnen"
+    aria-expanded="false"
+    aria-controls="mobile-menu"
+  >
+    <!-- Dark readable background pill for the K-Menu (significantly larger for better touch targets) -->
+    <div class="flex items-center gap-x-2 bg-[#0F0D0A]/92 backdrop-blur-md px-5 py-3 rounded-3xl border border-white/10 shadow-lg">
+      <!-- Brand Monogram "K" -->
+      <div class="serif text-[26px] leading-none text-white font-medium tracking-[-0.5px]">
+        K
+      </div>
+
+      <!-- Thin architectural gold line -->
+      <div class="w-[20px] h-[1.5px] bg-[#C5A46E]/70 gold-line transition-all duration-300"></div>
+
+      <!-- MENU label -->
+      <div class="label-tight text-[10px] tracking-[3.2px] text-white menu-label transition-all duration-300">
+        MENU
+      </div>
+    </div>
+  </button>
+
+  <!-- Mobile Menu Overlay -->
+  <MobileMenu />
+</nav>
+
+<script>
+  import { initMobileMenu } from '../scripts/mobile-menu';
+
+  // v3 controller with MutationObserver - very robust
+  initMobileMenu();
+</script>
+
+<style>
+  /* ============================================
+     K-MENU (Corner Trigger) - Refined luxury micro-interactions
+     Now with dark readable pill background
+  ============================================ */
+
+  #mobile-menu-button {
+    transition: all 280ms var(--ease-standard);
+  }
+
+  #mobile-menu-button:hover {
+    opacity: 0.95;
+  }
+
+  /* Hover effects inside the dark pill */
+  #mobile-menu-button:hover .gold-line {
+    width: 26px;
+    background-color: #C5A46E;
+  }
+
+  #mobile-menu-button:hover .menu-label {
+    letter-spacing: 4.5px;
+    color: #C5A46E;
+  }
+
+  #mobile-menu-button:hover .serif {
+    color: #C5A46E;
+    text-shadow: 0 0 0 8px rgba(197, 164, 110, 0.12);
+  }
+
+  /* Active / menu-open state */
+  #mobile-menu-button.menu-open .serif {
+    color: #C5A46E;
+  }
+
+  #mobile-menu-button.menu-open .gold-line {
+    width: 28px;
+    background-color: #C5A46E;
+  }
+
+  #mobile-menu-button.menu-open .menu-label {
+    letter-spacing: 4.3px;
+    color: #C5A46E;
+  }
+
+  #mobile-menu-button:focus-visible {
+    outline: 2px solid rgba(197, 164, 110, 0.6);
+    outline-offset: 3px;
+    border-radius: 18px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #mobile-menu-button,
+    #mobile-menu-button .serif,
+    #mobile-menu-button .gold-line,
+    #mobile-menu-button .menu-label {
+      transition: none !important;
+      text-shadow: none !important;
+    }
+  }
+</style>

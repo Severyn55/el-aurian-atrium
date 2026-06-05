@@ -1,0 +1,368 @@
+/* ============================================
+   CRAFT & INTERACTION SYSTEM
+   ============================================ */
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* --------------------------------------------
+   TYPOGRAPHY UTILITIES - Consistent Craft
+   -------------------------------------------- */
+
+/* Dedicated class for the LCP heading to minimize font render delay */
+.heading-lcp {
+  font-family: 'Playfair Display Heading', Georgia, serif;
+  font-weight: 500;
+  font-display: swap; /* Standard per Craft Standards. Only use 'block' for true LCP headline with explicit justification. */
+}
+
+/* 
+  Subsetted Playfair (only for the LCP heading "The El-Aurian Atrium").
+  This font is much smaller than the full version → faster loading + lower render delay.
+*/
+/* Font-face moved to Layout.astro for base-aware URL */
+
+/* Section / Category Labels (e.g. "KÜCHE & WEIN", "RESERVIERUNG") */
+.label {
+  font-size: 12px;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Slightly tighter label variant */
+.label-tight {
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Button text (consistent across all buttons) */
+.tracking-button {
+  letter-spacing: 1.5px;
+}
+
+/* --------------------------------------------
+   Motion Tokens (already defined in Layout.astro)
+   -------------------------------------------- */
+
+/* --------------------------------------------
+   BUTTONS - Consistent Craft Level
+   -------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+  transition: all var(--duration-base) var(--ease-standard);
+  cursor: pointer;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #C5A46E;
+  outline-offset: 2px;
+}
+
+/* Primary Gold Button */
+.btn-primary {
+  background-color: #C5A46E;
+  color: #0F0D0A;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary:hover {
+  background-color: #A68A5F;
+  transform: translateY(-1px);
+  box-shadow: 
+    0 0 0 1.5px rgba(197, 164, 110, 0.45),           /* dezenter Goldrahmen-Effekt */
+    0 10px 15px -3px rgb(0 0 0 / 0.12), 
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  background-color: #8C7350;
+}
+
+/* Secondary Button (outline) */
+.btn-secondary {
+  border: 1px solid rgba(255,255,255,0.45);
+  color: #F4EDE3;
+}
+
+.btn-secondary:hover {
+  background-color: #F4EDE3;
+  color: #0F0D0A;
+  border-color: #F4EDE3;
+}
+
+.btn-secondary:active {
+  background-color: #EDE6D9;
+}
+
+/* Gold Frame variant for buttons (especially secondary) */
+.btn.gold-frame {
+  border-color: var(--gold-muted);
+  color: var(--gold);
+  background-color: transparent;
+}
+
+.btn.gold-frame:hover {
+  background-color: var(--gold);
+  color: #0F0D0A;
+  border-color: var(--gold);
+}
+
+.btn.gold-frame:active {
+  background-color: var(--gold-light);
+  color: #0F0D0A;
+  border-color: var(--gold-light);
+}
+
+/* Ghost / Text Button */
+.btn-ghost {
+  color: #A89F90;
+}
+
+.btn-ghost:hover {
+  color: #F4EDE3;
+}
+
+.btn-ghost:active {
+  color: #EDE6D9;
+}
+
+/* --------------------------------------------
+   CARD INTERACTIONS - Refined
+   -------------------------------------------- */
+
+/* ============================================
+   UNIFIED GOLD FRAME SYSTEM
+   Centralized, consistent gold framing across the entire site
+============================================ */
+
+:root {
+  --gold: #C5A46E;
+  --gold-light: #D4B47A;
+  --gold-muted: #3A3630;
+  --gold-frame-width: 1px;
+  --gold-frame-padding: 5px;
+  --gold-frame-radius: 1rem;
+}
+
+/* Base Gold Frame - for images, cards, and content boxes */
+.gold-frame {
+  border: var(--gold-frame-width) solid var(--gold-muted);
+  border-radius: var(--gold-frame-radius);
+  padding: var(--gold-frame-padding);
+  background-color: #0F0D0A;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.08);
+  transition: border-color 200ms var(--ease-standard),
+              box-shadow 450ms var(--ease-decelerate);
+}
+
+.gold-frame:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(197, 164, 110, 0.22);
+}
+
+/* Inner image treatment for framed images (prevents border-radius issues) */
+.gold-frame-image {
+  overflow: hidden;
+  border-radius: calc(var(--gold-frame-radius) - var(--gold-frame-padding));
+  width: 100%;
+  height: 100%;
+}
+
+/* Legacy support - will be phased out */
+.gold-frame-hover {
+  border: 1px solid var(--gold-muted);
+  transition: border-color var(--duration-base) var(--ease-standard),
+              box-shadow var(--duration-slow) var(--ease-decelerate);
+}
+
+.gold-frame-hover:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(197, 164, 110, 0.22);
+}
+
+/* Subtle Lift - more controlled and luxurious */
+.subtle-lift {
+  transition: transform var(--duration-base) var(--ease-standard),
+              box-shadow var(--duration-slow) var(--ease-standard);
+  will-change: transform;
+}
+
+.subtle-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+              0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Image zoom on cards (used inside gold-frame + subtle-lift) */
+.card-image {
+  transition: transform 700ms var(--ease-decelerate);
+}
+
+.gold-frame-hover:hover .card-image,
+.subtle-lift:hover .card-image {
+  transform: scale(1.035);
+}
+
+/* --------------------------------------------
+   FOCUS STATES (Accessibility + Polish)
+   -------------------------------------------- */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #C5A46E;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Hero texts fade when mobile menu is open (clean Mobile UX) */
+body.mobile-menu-open .hero-text-content,
+body.mobile-menu-open .hero-scroll-hint {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--ease-standard);
+}
+
+/* ============================================
+   EXPANDED DESIGN SYSTEM (v0.3)
+   Neue standardisierte Komponenten für zukünftige Unterseiten
+============================================ */
+
+/* Section Header Pattern */
+.section-header {
+  margin-bottom: 2.5rem;
+}
+
+.section-header .label {
+  margin-bottom: 0.5rem;
+}
+
+/* Standard Card (empfohlener Wrapper) */
+.card {
+  border: 1px solid #3A3630;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: border-color var(--duration-base) var(--ease-standard),
+              box-shadow var(--duration-slow) var(--ease-decelerate);
+}
+
+/* Card with Gold Frame - uses the unified system */
+.card.gold-frame {
+  border-color: var(--gold-muted);
+}
+
+.card.gold-frame:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(197, 164, 110, 0.22);
+}
+
+/* ============================================
+   CREATIVE GOLD DETAILS - Modern & Elegant Accents
+============================================ */
+
+/* Fine Gold Hairline - subtle elegant divider */
+.gold-hairline {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-muted), transparent);
+}
+
+/* Gold Wash on Hover - very subtle premium effect */
+.gold-wash {
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-wash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(197, 164, 110, 0.06) 50%, transparent 60%);
+  opacity: 0;
+  transition: opacity 400ms var(--ease-decelerate);
+}
+
+.gold-wash:hover::after {
+  opacity: 1;
+}
+
+/* ============================================
+   Form Elements (wichtig für zukünftige Unterseiten)
+============================================ */
+.input,
+.textarea,
+.select {
+  background-color: #1A1714;
+  border: 1px solid #3A3630;
+  color: #F4EDE3;
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 15px;
+  transition: border-color var(--duration-base) var(--ease-standard),
+              box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: #C5A46E;
+  box-shadow: 0 0 0 3px rgba(197, 164, 110, 0.15);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #A89F90;
+  opacity: 0.7;
+}
+
+/* Error State */
+.input.error,
+.textarea.error {
+  border-color: #C5A46E; /* später durch dedizierte Error-Farbe ersetzen */
+}
+
+/* ============================================
+   TOUCH TARGETS ≥ 44px (WCAG 2.2 AA)
+   Expanded for better accessibility on mobile + desktop
+============================================ */
+button,
+a[role="button"],
+.input,
+.textarea,
+.select {
+  min-height: 44px;
+}
+
+/* Desktop Navigation links */
+nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Footer links and social icons */
+footer a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+/* Small text links in content areas (Impressum, Datenschutz, fallback links) */
+footer a,
+a.text-xs {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 4px;
+}

@@ -1,0 +1,57 @@
+---
+import Image from './ui/Image.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+// Optimized image
+import socialDinner from '../assets/images/events/20260604-social-dinner-club.jpg';
+
+// Labels from collection
+import { getEntry } from 'astro:content';
+const labels = await getEntry('labels', 'main');
+---
+
+<section id="member" class={`max-w-screen-2xl mx-auto px-8 py-20 bg-[#1A1714] ${className}`}>
+  <div class="grid md:grid-cols-2 gap-x-12 items-center">
+    <!-- Image -->
+    <div class="order-2 md:order-1 relative">
+      <Image 
+        src={socialDinner} 
+        alt="Social Dinner Club" 
+        widths={[500, 800, 1100]}
+        sizes="(max-width: 768px) 100vw, 50vw"
+        class="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl"
+        goldFrame={true}
+        subtleLift={true}
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+
+    <!-- Text -->
+    <div class="order-1 md:order-2 max-w-lg">
+      <div class="label text-[#C5A46E] mb-3">{labels?.data?.label_exklusiv ?? 'EXKLUSIV'}</div>
+      <h2 class="serif text-heading mb-6">Social Dinner Club</h2>
+      
+      <p class="text-[#A89F90] leading-relaxed mb-8">
+        Ein kleiner, fester Kreis von Menschen, die denselben Geschmack teilen. 
+        Private Dinners, besondere Gäste, Abende, die nur für Members stattfinden. 
+        Persönlich. Diskret. Unvergesslich.
+      </p>
+      
+      <a 
+        href="#member" 
+        class="btn btn-secondary gold-frame px-8 py-4 text-ui tracking-button"
+      >
+        {labels?.data?.cta_member_werden ?? 'MEMBER WERDEN'}
+      </a>
+      <p class="text-xs text-[#A89F90] mt-4 tracking-[1px]">
+        Auf Einladung oder Bewerbung • Begrenzte Plätze
+      </p>
+    </div>
+  </div>
+</section>

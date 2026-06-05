@@ -1,0 +1,306 @@
+---
+import Image from './ui/Image.astro';
+
+// Labels from collection (for section title + optional teaser text)
+import { getEntry } from 'astro:content';
+const labels = await getEntry('labels', 'main');
+const begegnungen = await getEntry('begegnungen', 'portraits');
+
+// Prepare image map via glob so we can resolve filenames from the content collection
+const portraitImageModules = import.meta.glob('../assets/images/portraits/*.{jpg,jpeg}', {
+  eager: true,
+}) as Record<string, { default: ImageMetadata }>;
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+// The list comes from the content collection (future-proof for admin editing)
+const rawPortraits = begegnungen?.data?.portraits ?? [];
+
+// Resolve the actual optimized image for each entry
+const portraits = rawPortraits.map((p: any) => {
+  const key = `../assets/images/portraits/${p.image}`;
+  const imageModule = portraitImageModules[key];
+  return {
+    ...p,
+    image: imageModule ? imageModule.default : null,
+  };
+});
+
+// Serialized clean data for the client modal (no heavy ImageMetadata objects)
+const clientPortraits = portraits.map((p: any) => ({
+  title: p.title,
+  alt: p.alt,
+  subcaption: p.subcaption,
+  year: p.year,
+  caption: p.caption || '',
+  src: p.image?.src || '',
+}));
+---
+
+<section id="begegnungen" class={`max-w-screen-2xl mx-auto px-8 py-20 ${className}`}>
+  <div class="mb-10 max-w-2xl">
+    <div class="label text-[#C5A46E] mb-2">{labels?.data?.label_begegnungen ?? 'BEGEGNUNGEN'}</div>
+    <div class="flex items-baseline justify-between">
+      <h2 class="text-subhead serif">Ambassador Veylan</h2>
+      <span class="text-xs tracking-[2px] text-[#C5A46E]">{portraits.length} BEGEGNUNGEN</span>
+    </div>
+    <p class="text-[#A89F90] mt-2 max-w-md">
+      {labels?.data?.begegnungen_beschreibung ?? 'Ausgewählte Momente aus den letzten Jahren. Der Gastgeber und Kurator hinter dem El-Aurian Atrium.'}
+    </p>
+  </div>
+
+  <!-- 
+    Scalable Portrait Gallery
+    - Responsive grid that stays elegant with many images
+    - 1 col (mobile) → 2 col → 3 col (1080p+)
+    - Each card is high-craft: gold frame + subtle lift + nice caption
+    - Click opens a beautiful detail modal (the real craft moment)
+  -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    {portraits.map((portrait, index) => (
+      <button
+        type="button"
+        class="group text-left block w-full cursor-pointer"
+        data-portrait-index={index}
+        onclick={`openBegegnungModal(${index})`}
+        aria-label={`Begegnung öffnen: ${portrait.title}`}
+      >
+        <div class="gold-frame overflow-hidden">
+          <div class="gold-frame-image">
+            {portrait.image ? (
+              <Image
+                src={portrait.image}
+                alt={portrait.alt}
+                widths={[400, 700, 900, 1200]}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                class="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                goldFrame={false}
+              />
+            ) : (
+              <div class="w-full aspect-[4/3] bg-[#111] flex items-center justify-center text-[#A89F90]/40 text-sm tracking-[2px]">
+                —
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div class="mt-3 space-y-1">
+          <p class="text-[15px] tracking-[-0.1px] text-white leading-tight group-hover:text-[#C5A46E] transition-colors duration-200">
+            {portrait.title}
+          </p>
+          {(portrait.subcaption || portrait.year) && (
+            <p class="text-xs tracking-[1.5px] text-[#A89F90]/70 uppercase">
+              {portrait.subcaption}
+              {portrait.subcaption && portrait.year && ' · '}
+              {portrait.year}
+            </p>
+          )}
+        </div>
+      </button>
+    ))}
+  </div>
+</section>
+
+<!-- 
+  High-craft Detail Modal for Begegnungen
+  This is what makes the experience feel premium and scalable.
+  Clean dark viewer, excellent image presentation, easy navigation.
+-->
+<div 
+  id="begegnung-modal" 
+  class="hidden fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4"
+  onclick="if (event.target.id === 'begegnung-modal') closeBegegnungModal()"
+>
+  <div 
+    class="relative w-full max-w-[1100px] bg-[#0F0D0A] rounded-2xl overflow-hidden shadow-2xl"
+    onclick="event.stopImmediatePropagation()"
+  >
+    <!-- Close button -->
+    <button 
+      onclick="closeBegegnungModal()" 
+      class="absolute top-4 right-4 z-10 text-[#C5A46E] hover:text-white text-2xl leading-none p-2"
+      aria-label="Modal schließen"
+    >
+      &times;
+    </button>
+
+    <div class="flex flex-col lg:flex-row">
+      <!-- Large Image -->
+      <div class="lg:w-3/5 bg-black flex items-center justify-center p-4 lg:p-8">
+        <img 
+          id="modal-image" 
+          class="max-h-[70vh] lg:max-h-[82vh] w-auto object-contain rounded-xl" 
+          alt="" 
+        />
+      </div>
+
+      <!-- Meta / Caption -->
+      <div class="lg:w-2/5 p-8 lg:p-10 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-white/10">
+        <div id="modal-meta" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div id="modal-title" class="text-2xl tracking-tight text-white"></div>
+            <div id="modal-counter" class="text-xs tracking-[2px] text-[#C5A46E] font-mono"></div>
+          </div>
+          <div id="modal-subcaption" class="text-[#A89F90] text-lg"></div>
+          <div id="modal-caption" class="text-[#A89F90] text-base leading-relaxed border-t border-white/10 pt-4 hidden"></div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-white/10 text-sm text-[#A89F90]/70">
+          ← → Pfeile oder Klicken für Navigation · ESC schließt
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
+      <button 
+        onclick="prevBegegnung()" 
+        class="px-4 py-2 rounded-full border border-white/20 hover:border-[#C5A46E] text-[#C5A46E] hover:text-white transition-all text-sm tracking-wider"
+      >
+        ← Vorherige
+      </button>
+      <button 
+        onclick="nextBegegnung()" 
+        class="px-4 py-2 rounded-full border border-white/20 hover:border-[#C5A46E] text-[#C5A46E] hover:text-white transition-all text-sm tracking-wider"
+      >
+        Nächste →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script lang="ts" define:vars={{ clientPortraits }}>
+  // clientPortraits is injected here safely by Astro (define:vars) from the frontmatter value.
+  // This avoids TDZ / "cannot access before initialization" issues in the bundled + minified output.
+
+  let currentIndex = 0;
+
+  function openBegegnungModal(index: number) {
+    currentIndex = index;
+    const modal = document.getElementById('begegnung-modal') as HTMLElement;
+    const img = document.getElementById('modal-image') as HTMLImageElement;
+    const titleEl = document.getElementById('modal-title') as HTMLElement;
+    const subEl = document.getElementById('modal-subcaption') as HTMLElement;
+    const counterEl = document.getElementById('modal-counter') as HTMLElement;
+    const captionEl = document.getElementById('modal-caption') as HTMLElement;
+
+    if (!modal || !img || !titleEl || !subEl) return;
+
+    const p = clientPortraits[currentIndex];
+    if (!p) return;
+
+    if (p.src) {
+      img.src = p.src;
+      img.alt = p.alt;
+      img.style.display = '';
+    } else {
+      img.src = '';
+      img.alt = '';
+      img.style.display = 'none';
+    }
+    titleEl.textContent = p.title;
+
+    let meta = [p.subcaption, p.year].filter(Boolean).join(' · ');
+    subEl.textContent = meta || '';
+
+    if (captionEl) {
+      if (p.caption) {
+        captionEl.textContent = p.caption;
+        captionEl.classList.remove('hidden');
+      } else {
+        captionEl.classList.add('hidden');
+      }
+    }
+
+    if (counterEl) counterEl.textContent = `${currentIndex + 1} / ${clientPortraits.length}`;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+
+    // Keyboard support
+    document.addEventListener('keydown', handleModalKeydown, { once: true });
+  }
+
+  function closeBegegnungModal() {
+    const modal = document.getElementById('begegnung-modal') as HTMLElement;
+    if (!modal) return;
+
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function nextBegegnung() {
+    currentIndex = (currentIndex + 1) % clientPortraits.length;
+    updateModalContent();
+  }
+
+  function prevBegegnung() {
+    currentIndex = (currentIndex - 1 + clientPortraits.length) % clientPortraits.length;
+    updateModalContent();
+  }
+
+  function updateModalContent() {
+    const img = document.getElementById('modal-image') as HTMLImageElement;
+    const titleEl = document.getElementById('modal-title') as HTMLElement;
+    const subEl = document.getElementById('modal-subcaption') as HTMLElement;
+    const counterEl = document.getElementById('modal-counter') as HTMLElement;
+    const captionEl = document.getElementById('modal-caption') as HTMLElement;
+
+    const p = clientPortraits[currentIndex];
+    if (!p || !img || !titleEl || !subEl) return;
+
+    if (p.src) {
+      img.src = p.src;
+      img.alt = p.alt;
+      img.style.display = '';
+    } else {
+      img.src = '';
+      img.alt = '';
+      img.style.display = 'none';
+    }
+    titleEl.textContent = p.title;
+
+    let meta = [p.subcaption, p.year].filter(Boolean).join(' · ');
+    subEl.textContent = meta || '';
+
+    if (captionEl) {
+      if (p.caption) {
+        captionEl.textContent = p.caption;
+        captionEl.classList.remove('hidden');
+      } else {
+        captionEl.classList.add('hidden');
+      }
+    }
+
+    if (counterEl) counterEl.textContent = `${currentIndex + 1} / ${clientPortraits.length}`;
+  }
+
+  function handleModalKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      closeBegegnungModal();
+    } else if (e.key === 'ArrowRight') {
+      nextBegegnung();
+    } else if (e.key === 'ArrowLeft') {
+      prevBegegnung();
+    }
+  }
+
+  // Make functions available for inline onclick (and future admin use if needed)
+  (window as any).openBegegnungModal = openBegegnungModal;
+  (window as any).closeBegegnungModal = closeBegegnungModal;
+  (window as any).nextBegegnung = nextBegegnung;
+  (window as any).prevBegegnung = prevBegegnung;
+</script>
+
+<style>
+  /* Local modal polish */
+  #begegnung-modal {
+    backdrop-filter: blur(4px);
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+/**
+ * Menu Editor (Lunch + Dinner + save controls)
+ * The categories are populated dynamically by JS (renderMenu, addCategory etc.).
+ * Preserves all IDs and onclick handlers.
+ */
+---
+
+<div id="editor" class="hidden">
+  <!-- Lunch -->
+  <div class="gold-frame p-6 mb-8 bg-[#1A1714]">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl">Lunch</h2>
+      <div class="flex items-center gap-x-2">
+        <button class="text-[#C5A46E] text-sm hover:underline" onclick="addCategory('lunch')">+ Kategorie hinzufügen</button>
+        <button id="toggle-lunch-btn"
+                class="admin-btn admin-btn-secondary text-xs flex items-center gap-x-1 px-2 py-1">
+          <span id="toggle-lunch-label">Einklappen</span>
+          <svg id="toggle-lunch-chevron" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="lunch-editor-content">
+      <div class="mb-4">
+        <label class="text-sm text-[#A89F90]">PDF Link</label>
+        <input id="lunch-pdf" class="w-full bg-[#0F0D0A] border border-[#C5A26F] p-2 rounded text-[#F8F4EC]" />
+        <button type="button" class="admin-btn admin-btn-secondary text-xs mt-1 js-select-pdf-lunch">PDF auswählen/ersetzen</button>
+        <input type="file" id="lunch-pdf-file" accept="application/pdf" class="hidden" />
+      </div>
+
+      <div id="lunch-categories"></div>
+    </div>
+  </div>
+
+  <!-- Dinner -->
+  <div class="gold-frame p-6 mb-8 bg-[#1A1714]">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl">Dinner</h2>
+      <div class="flex items-center gap-x-2">
+        <button class="text-[#C5A46E] text-sm hover:underline" onclick="addCategory('dinner')">+ Kategorie hinzufügen</button>
+        <button id="toggle-dinner-btn"
+                class="admin-btn admin-btn-secondary text-xs flex items-center gap-x-1 px-2 py-1">
+          <span id="toggle-dinner-label">Einklappen</span>
+          <svg id="toggle-dinner-chevron" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="dinner-editor-content">
+      <div class="mb-4">
+        <label class="text-sm text-[#A89F90]">PDF Link</label>
+        <input id="dinner-pdf" class="w-full bg-[#0F0D0A] border border-[#C5A26F] p-2 rounded text-[#F8F4EC]" />
+        <button type="button" class="admin-btn admin-btn-secondary text-xs mt-1 js-select-pdf-dinner">PDF auswählen/ersetzen</button>
+        <input type="file" id="dinner-pdf-file" accept="application/pdf" class="hidden" />
+      </div>
+
+      <div id="dinner-categories"></div>
+    </div>
+  </div>
+
+  <div class="flex gap-4">
+    <button id="save-btn" class="btn btn-primary gold-frame px-8 py-3 text-lg">Änderungen auf GitHub speichern</button>
+    <button onclick="window.location.reload()" class="btn btn-secondary gold-frame px-6 py-3">Abbrechen</button>
+  </div>
+  <div id="save-status" class="mt-3 text-sm"></div>
+</div>

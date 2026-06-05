@@ -1,0 +1,42 @@
+---
+/**
+ * Labels / Interface Texte Editor Card
+ * The grid for labels is populated by JS (renderLabelsForm).
+ */
+---
+
+<div class="admin-card mb-8">
+  <div class="admin-card-header">
+    <div>
+      <div class="admin-card-title">Interface Texte</div>
+      <div class="admin-card-subtitle">Labels, Navigation &amp; CTAs</div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="loadLabelsArea()" class="admin-btn admin-btn-ghost text-xs">Daten laden</button>
+      <button id="toggle-labels-btn"
+              class="admin-btn admin-btn-secondary text-xs flex items-center gap-x-1.5 px-3 py-1.5">
+        <span id="toggle-labels-label">Ausklappen</span>
+        <svg id="toggle-labels-chevron" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="labels-editor-content" style="max-height:0;opacity:0;overflow:hidden;">
+    <div class="admin-card-body">
+      <p class="admin-help mb-4">
+        Hier kannst du alle sichtbaren Texte der Website anpassen (Navigation, Labels, Buttons, Byline usw.). 
+        Nach dem Speichern werden die Änderungen über den Workflow live geschaltet.
+      </p>
+      <div id="labels-editor" class="grid grid-cols-1 md:grid-cols-2 gap-x-7 gap-y-5">
+        <!-- JS populated premium inputs with gold borders, matching Speisekarten editor -->
+      </div>
+    </div>
+
+    <div class="admin-card-footer">
+      <button onclick="saveLabelsArea()" class="admin-btn admin-btn-primary">Labels speichern</button>
+      <div id="labels-status" class="admin-status flex-1"></div>
+    </div>
+  </div>
+</div>

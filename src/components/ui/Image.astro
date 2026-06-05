@@ -1,0 +1,75 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  width?: number;
+  height?: number;
+  widths?: number[];
+  sizes?: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  // Custom props for this project
+  goldFrame?: boolean;
+  subtleLift?: boolean;
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  widths = [400, 700, 1000, 1300],
+  sizes = '(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 40vw',
+  class: className = '',
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  goldFrame = false,
+  subtleLift = false,
+} = Astro.props;
+
+// Build additional classes based on props
+// Using the unified gold-frame system for consistency
+const extraClasses = [
+  goldFrame ? 'gold-frame' : '',
+  subtleLift ? 'subtle-lift' : '',
+].filter(Boolean).join(' ');
+
+const finalClass = `${className} ${extraClasses}`.trim();
+---
+
+{goldFrame ? (
+  <div class="gold-frame">
+    <div class="gold-frame-image">
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        widths={widths}
+        sizes={sizes}
+        class={className}
+        loading={loading}
+        fetchpriority={fetchpriority}
+        format="webp"
+        quality={65}
+      />
+    </div>
+  </div>
+) : (
+  <Image
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    widths={widths}
+    sizes={sizes}
+    class={finalClass}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    format="webp"
+    quality={65}
+  />
+)}

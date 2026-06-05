@@ -1,0 +1,18 @@
+---
+interface Props {
+  class?: string;
+  noBodyPadding?: boolean;
+}
+
+const { class: className = '', noBodyPadding = false } = Astro.props;
+---
+
+<div class={`admin-card mb-8 ${className}`}>
+  <slot name="header" />
+
+  <div class={noBodyPadding ? '' : 'admin-card-body'}>
+    <slot />
+  </div>
+
+  <slot name="footer" />
+</div>

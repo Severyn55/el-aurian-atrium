@@ -1,0 +1,316 @@
+/* ============================================
+   ADMIN DESIGN SYSTEM — Premium Craft Level
+   Dark luxury tool aesthetic aligned with the site
+   Extracted in Phase 2 refactor for better maintainability.
+   ============================================ */
+.admin-shell {
+  --admin-bg: #0F0D0A;
+  --admin-surface: #15120F;
+  --admin-surface-elev: #1C1814;
+  --admin-surface-2: #25221E;
+  --admin-gold: #C5A26F;
+  --admin-gold-light: #D4B27D;
+  --admin-gold-muted: #3F3A32;
+  --admin-border: #322E28;
+  --admin-border-strong: #46403A;
+  --admin-text: #F8F4EC;
+  --admin-text-muted: #C5B8A8;  /* improved contrast for WCAG AA on dark surfaces */
+  --admin-text-subtle: #8A8070;
+  --admin-success: #5FAE8A;     /* brighter for status readability */
+  --admin-error: #D17A7A;
+  --admin-focus: #C5A26F;
+
+  /* Generous, calm spacing scale */
+  --space-xs: 0.375rem;
+  --space-sm: 0.625rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.75rem;
+
+  /* Refined motion */
+  --admin-transition: 180ms cubic-bezier(0.23, 1.0, 0.32, 1);
+  --admin-transition-slow: 280ms cubic-bezier(0.23, 1.0, 0.32, 1);
+}
+
+/* Premium Admin Card — distinct visual weight */
+.admin-card {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 0;
+  box-shadow: 0 10px 30px -15px rgb(0 0 0 / 0.35);
+  transition: border-color var(--admin-transition), 
+              box-shadow var(--admin-transition-slow),
+              transform var(--admin-transition);
+  /* Allow focus rings and long content without clipping */
+  overflow: visible;
+}
+.admin-card:hover {
+  border-color: var(--admin-border-strong);
+  box-shadow: 0 20px 40px -15px rgb(0 0 0 / 0.4);
+}
+
+/* Card internal structure */
+.admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.75rem 1.25rem;
+  border-bottom: 1px solid var(--admin-border);
+  background-color: var(--admin-surface-elev);
+}
+.admin-card-title {
+  font-size: 15px;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--admin-gold);
+}
+.admin-card-subtitle {
+  font-size: 21px;
+  letter-spacing: -0.35px;
+  font-weight: 500;
+  color: var(--admin-text);
+  margin-top: 4px;
+}
+
+.admin-card-body {
+  padding: 1.75rem; /* a bit more generous to prevent any edge clipping */
+}
+.admin-card-body > * + * {
+  margin-top: var(--space-lg);
+}
+
+.admin-card-footer {
+  padding: var(--space-md) var(--space-xl);
+  background-color: #12100C;
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Smooth collapsible for the large menu editor */
+#menu-editor-content {
+  transition: max-height 280ms cubic-bezier(0.23, 1, 0.32, 1), 
+              opacity 180ms ease;
+  overflow: hidden;
+}
+
+#labels-editor-content,
+#konzept-editor-content {
+  transition: max-height 280ms cubic-bezier(0.23, 1, 0.32, 1), 
+              opacity 180ms ease;
+  overflow: hidden;
+}
+
+/* Form elements — premium, calm, excellent haptics */
+.admin-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #D4CBB8; /* stronger contrast for small labels on dark admin surfaces */
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.admin-input,
+.admin-textarea {
+  width: 100%;
+  background-color: #0F0D0A !important; /* hard fallback dark */
+  background-color: var(--admin-bg, #0F0D0A) !important;
+  border: 1px solid #C5A26F !important; /* gold border per gold style */
+  border-color: var(--admin-gold, #C5A26F) !important;
+  color: #F8F4EC !important; /* hard fallback light text */
+  color: var(--admin-text, #F8F4EC) !important;
+  border-radius: 8px;
+  padding: 13px 15px;
+  font-size: 15px;
+  transition: border-color var(--admin-transition), 
+              box-shadow var(--admin-transition),
+              background-color var(--admin-transition);
+  font-family: 'Inter', system_ui, sans-serif;
+}
+
+.admin-input:focus,
+.admin-textarea:focus {
+  border-color: #C5A26F !important;
+  box-shadow: 0 0 0 3px rgba(197, 162, 111, 0.18) !important;
+  outline: none;
+}
+
+/* Nuclear option: force dark inputs + gold border for premium gold style in editors */
+#lunch-categories input,
+#dinner-categories input,
+#labels-editor input,
+.admin-card input,
+input.admin-input,
+input.admin-input-sm {
+  background-color: #0F0D0A !important;
+  color: #F8F4EC !important;
+  border-color: #C5A26F !important;  /* gold border per gold style */
+}
+
+/* Also force for the PDF inputs specifically */
+#lunch-pdf,
+#dinner-pdf {
+  background-color: #0F0D0A !important;
+  color: #F8F4EC !important;
+  border-color: #C5A26F !important;
+}
+
+/* Extra gold focus ring for editor inputs */
+.admin-card input:focus,
+.admin-card textarea:focus {
+  border-color: #C5A26F !important;
+  box-shadow: 0 0 0 3px rgba(197, 162, 111, 0.18) !important;
+}
+.admin-input::placeholder,
+.admin-textarea::placeholder {
+  color: var(--admin-text-subtle);
+}
+.admin-input:focus,
+.admin-textarea:focus {
+  outline: none;
+  border-color: var(--admin-gold);
+  box-shadow: 0 0 0 3px rgba(197, 162, 111, 0.12);
+  background-color: #12100C;
+}
+.admin-textarea {
+  min-height: 180px;
+  line-height: 1.55;
+  font-size: 14.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  resize: vertical;
+}
+
+.admin-input-sm {
+  padding: 9px 12px;
+  font-size: 13.5px;
+}
+
+/* Gold style for Höhepunkte / Tagesablauf input field: dark bg, gold border, high-contrast light text for excellent readability, matching admin gold design */
+#tagesablauf-text {
+  background-color: #0F0D0A !important;
+  color: #F8F4EC !important; /* high contrast light text for readability on dark */
+  border: 1px solid #C5A26F !important;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 15px; /* larger for readability */
+  font-weight: 500;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  font-family: 'Inter', system_ui, sans-serif;
+}
+
+#tagesablauf-text:focus {
+  border-color: #C5A26F !important;
+  box-shadow: 0 0 0 3px rgba(197, 164, 110, 0.25) !important;
+  background-color: #12100C !important;
+  outline: none;
+}
+
+#tagesablauf-text::placeholder {
+  color: #A89F90 !important;
+  opacity: 0.9;
+}
+
+/* Premium buttons for admin */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12.5px;
+  letter-spacing: 1.75px;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 10px 20px;
+  transition: all var(--admin-transition);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.admin-btn:focus-visible {
+  outline: 2px solid var(--admin-gold);
+  outline-offset: 2px;
+}
+
+.admin-btn-primary {
+  background-color: var(--admin-gold);
+  color: #0F0D0A;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+}
+.admin-btn-primary:hover {
+  background-color: var(--admin-gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(197, 162, 111, 0.4), 0 8px 16px -4px rgb(0 0 0 / 0.3);
+}
+.admin-btn-primary:active {
+  transform: translateY(0);
+  background-color: #A68B5C;
+}
+
+.admin-btn-secondary {
+  background-color: transparent;
+  color: #F8F4EC; /* strong light text */
+  color: var(--admin-text, #F8F4EC);
+  border: 1px solid #46403A;
+  border-color: var(--admin-border-strong, #46403A);
+}
+.admin-btn-secondary:hover {
+  background-color: #1C1814;
+  background-color: var(--admin-surface-elev, #1C1814);
+  border-color: var(--admin-gold, #C5A26F);
+  color: var(--admin-gold, #C5A26F);
+}
+.admin-btn-secondary:active {
+  background-color: #12100C;
+}
+
+.admin-btn-ghost {
+  color: #C5B8A8;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  letter-spacing: 1.5px;
+  border: 1px solid var(--admin-border-strong);
+  border-radius: 6px;
+}
+.admin-btn-ghost:hover {
+  color: var(--admin-gold);
+  border-color: var(--admin-gold-muted);
+  background-color: var(--admin-surface-elev);
+}
+
+/* Status messages — calm & clear */
+.admin-status {
+  font-size: 12.5px;
+  padding: 6px 0;
+  min-height: 22px;
+  transition: color 120ms linear;
+}
+.admin-status.success { color: var(--admin-success); }
+.admin-status.error { color: var(--admin-error); }
+.admin-status.loading { color: var(--admin-text-muted); }
+
+/* Refined gold accent line for visual hierarchy */
+.admin-accent {
+  width: 38px;
+  height: 1px;
+  background: linear-gradient(to right, var(--admin-gold), transparent);
+}
+
+/* Small helper text */
+.admin-help {
+  font-size: 11px;
+  color: var(--admin-text-subtle);
+  line-height: 1.4;
+}
+
+/* Section divider for long forms */
+.admin-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--admin-border), transparent);
+  margin: var(--space-lg) 0;
+}

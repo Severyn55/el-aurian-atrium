@@ -1,0 +1,37 @@
+---
+/**
+ * Höhepunkte / Tagesablauf Editor Card
+ * Single free-text textarea for the dark window in the Events section.
+ * IDs and onclicks preserved for main script.
+ */
+---
+
+<div class="admin-card mb-8">
+  <div class="admin-card-header">
+    <div>
+      <div class="admin-card-title">Höhepunkte / Tagesablauf</div>
+      <div class="admin-card-subtitle">Freitext für das Fenster im Events-Bereich</div>
+    </div>
+    <button onclick="loadTagesablaufArea()" class="admin-btn admin-btn-ghost text-xs">Daten laden</button>
+    <button id="toggle-tagesablauf-btn" class="admin-btn admin-btn-secondary text-xs flex items-center gap-x-1 px-2 py-1 ml-1">
+      <span id="toggle-tagesablauf-label">Ausklappen</span>
+      <svg id="toggle-tagesablauf-chevron" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="admin-card-body">
+    <p class="admin-help mb-4">
+      Hier kann der gesamte Text im dunklen "Tagesablauf"-Fenster auf der Homepage als Freitext eingegeben werden (mit Zeilenumbrüchen für die Zeiten). Änderungen werden als .md gespeichert und deployt.
+    </p>
+    <div id="tagesablauf-editor-content" style="max-height:0;opacity:0;overflow:hidden;">
+      <textarea id="tagesablauf-text" class="admin-textarea w-full" rows="8" placeholder="12:30 – 20:30 Kitchen&#10;17:30 – 22:30 Fine Dine + Beats&#10;22:30 – 01:00 Cocktails, Beats &amp; Party&#10;&#10;Mit täglich wechselnden Tagesgerichten nach Aushang"></textarea>
+
+      <div class="mt-4 flex gap-2 items-center">
+        <button onclick="saveTagesablaufArea()" class="admin-btn admin-btn-primary text-xs">Speichern</button>
+        <div id="tagesablauf-status" class="admin-status flex-1"></div>
+      </div>
+    </div>
+  </div>
+</div>

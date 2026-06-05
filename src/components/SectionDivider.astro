@@ -1,0 +1,22 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`flex justify-center py-10 md:py-14 ${className}`}>
+  <div class="relative flex items-center w-full max-w-screen-2xl px-8">
+    <!-- Left fade line -->
+    <div class="flex-1 h-px bg-gradient-to-r from-transparent to-[#C5A46E]/60"></div>
+    
+    <!-- Center accent -->
+    <div class="relative mx-5 flex items-center justify-center">
+      <div class="w-1.5 h-1.5 bg-[#C5A46E] rotate-45"></div>
+    </div>
+    
+    <!-- Right fade line -->
+    <div class="flex-1 h-px bg-gradient-to-l from-transparent to-[#C5A46E]/60"></div>
+  </div>
+</div>

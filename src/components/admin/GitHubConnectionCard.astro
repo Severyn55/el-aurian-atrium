@@ -1,0 +1,71 @@
+---
+/**
+ * GitHub Connection Card
+ * Contains token/repo inputs, ToS warning, load button, manual deploy.
+ * IDs are preserved for the main admin script to hook into.
+ */
+---
+
+<div class="admin-card mb-8">
+  <div class="admin-card-header">
+    <div>
+      <div class="admin-card-title">Sichere Verbindung</div>
+      <div class="admin-card-subtitle tracking-[-0.4px]">GitHub Repository</div>
+    </div>
+    <div class="admin-accent self-start mt-2"></div>
+  </div>
+
+  <div class="admin-card-body">
+    <!-- Responsible Use Warning (for new GitHub account / after suspension) -->
+    <div style="background:#2a2118; border:1px solid #C5A26F; padding:10px 12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.35;">
+      <strong style="color:#C5A26F;">⚠️ WICHTIG – Neuer GitHub-Account &amp; ToS-Schutz</strong><br>
+      • <strong>Alten Token/Repo hier oben löschen</strong> und den <strong>neuen</strong> Account + Repo eintragen (owner/repo, z. B. <code>Severyn55/el-aurian-atrium</code>).<br>
+      • Nur frischen PAT vom neuen Account verwenden (Contents: Read &amp; Write). Keine alten Tokens.<br>
+      • <strong>Cooldown:</strong> Nach jedem Speichern/Upload mind. 8–10 Sekunden warten. Keine schnellen Wiederholungen – das verstößt gegen GitHub API Terms / Acceptable Use und führt zur Sperrung.<br>
+      • Lies den Abschnitt „Responsible Use &amp; GitHub ToS Compliance“ im README.
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+      <!-- Token -->
+      <div>
+        <label for="token" class="admin-label">Personal Access Token</label>
+        <input 
+          id="token" 
+          type="password" 
+          autocomplete="new-password"
+          class="admin-input font-mono text-sm" 
+          placeholder="ghp_... oder github_pat_... (vom NEUEN Account)" 
+        />
+        <div class="admin-help mt-2">
+          Nur im Browser verwendet. Benötigt <strong>Contents: Read &amp; Write</strong>.<br>
+          Classic PAT: Scope <strong>repo</strong>. Fine-grained: Repository permissions → Contents.
+        </div>
+      </div>
+
+      <!-- Repo -->
+      <div>
+        <label for="repo" class="admin-label">Repository</label>
+        <input 
+          id="repo" 
+          type="text" 
+          value="Severyn55/el-aurian-atrium"
+          placeholder="Severyn55/el-aurian-atrium"
+          class="admin-input font-mono text-sm" 
+        />
+        <div class="admin-help mt-2">
+          Format: <span class="font-mono text-[#6B6459]">owner/repo</span> — für den <strong>neuen</strong> Account + Repo anpassen (z. B. Severyn55/el-aurian-atrium).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-card-footer">
+    <button id="load-btn" class="admin-btn admin-btn-primary">Aktuelle Daten laden</button>
+    <button onclick="triggerManualDeploy()" class="admin-btn admin-btn-secondary text-xs ml-2">Manual Deploy (full site)</button>
+    <div id="load-status" class="admin-status flex-1"></div>
+    <div style="font-size:11px; color:#A89F90; margin-top:4px;">
+      Nach erfolgreichem Deploy: Site unter <a href="https://severyn55.github.io/el-aurian-atrium/" target="_blank" class="underline">https://severyn55.github.io/el-aurian-atrium/</a><br>
+      <strong>Wichtig:</strong> In Settings → Pages muss Source auf "GitHub Actions" stehen (nicht "Deploy from a branch")!
+    </div>
+  </div>
+</div>

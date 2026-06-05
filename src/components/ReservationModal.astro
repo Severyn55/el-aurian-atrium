@@ -1,0 +1,248 @@
+---
+import { getEntry } from 'astro:content';
+const labels = await getEntry('labels', 'main');
+---
+
+<!-- Reservation Modal -->
+<div 
+  id="reservation-modal" 
+  class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="reservation-modal-title"
+  aria-describedby="reservation-modal-description"
+  onclick="closeReservationModal()"
+>
+  <div 
+    onclick="event.stopImmediatePropagation()" 
+    class="relative w-full max-w-[960px] bg-[#0F0D0A] gold-frame rounded-3xl overflow-hidden shadow-2xl !p-0"
+  >
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-8 py-5 border-b border-[#3A3630]">
+      <div class="flex items-center gap-x-3">
+        <img 
+          src={`${import.meta.env.BASE_URL || '/'}assets/originals/logo-white.avif`} 
+          alt="The El-Aurian Atrium" 
+          class="h-7 w-auto gold-frame !p-[2px] !rounded-md"
+        >
+        <span id="reservation-modal-title" class="text-sm tracking-[2px] text-[#A89F90]">RESERVIERUNG</span>
+      </div>
+
+      <!-- Close Button - improved accessibility -->
+      <button 
+        onclick="closeReservationModal()" 
+        aria-label="Reservierungsfenster schließen"
+        class="text-[#A89F90] hover:text-white text-4xl leading-none transition-colors px-3 py-1 -mr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A46E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F0D0A] rounded"
+      >
+        ×
+      </button>
+    </div>
+
+    <!-- Hidden description for screen readers -->
+    <p id="reservation-modal-description" class="sr-only">
+      Demo-Reservierungsformular. Dies ist ein Platzhalter zu Demonstrationszwecken. Keine echten Buchungen möglich.
+    </p>
+
+    <!-- Demo Placeholder Reservation Form -->
+    <div class="p-6 md:p-8">
+      <div class="mb-4 p-3 bg-[#2A2118] border border-[#C5A26F] text-[#C5A46E] text-xs md:text-sm rounded">
+        <strong>⚠️ DEMO-PLATZHALTER:</strong> Dieses Reservierungsmodul ist rein fiktiv und dient ausschließlich zu Demonstrations- und Designzwecken. 
+        Es werden keine echten Reservierungen durchgeführt, keine Daten gespeichert oder übermittelt. 
+        Für echte Buchungen kontaktieren Sie uns bitte direkt per E-Mail.
+      </div>
+
+      <form id="demo-reservation-form" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs tracking-[1.5px] text-[#A89F90] block mb-1">Name *</label>
+            <input type="text" name="name" class="reservation-input w-full" placeholder="Max Mustermann" required>
+          </div>
+          <div>
+            <label class="text-xs tracking-[1.5px] text-[#A89F90] block mb-1">E-Mail *</label>
+            <input type="email" name="email" class="reservation-input w-full" placeholder="max@beispiel.de" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="text-xs tracking-[1.5px] text-[#A89F90] block mb-1">Datum *</label>
+            <input type="date" name="date" class="reservation-input w-full" required>
+          </div>
+          <div>
+            <label class="text-xs tracking-[1.5px] text-[#A89F90] block mb-1">Uhrzeit *</label>
+            <select name="time" class="reservation-input w-full" required>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+              <option value="20:30">20:30</option>
+              <option value="21:00">21:00</option>
+              <option value="21:30">21:30</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs tracking-[1.5px] text-[#A89F90] block mb-1">Anzahl Gäste *</label>
+            <input type="number" name="guests" class="reservation-input w-full" value="2" min="1" max="12" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs tracking-[1.5px] text-[#A89F90] block mb-1">Besondere Wünsche / Allergien</label>
+          <textarea name="requests" class="reservation-input w-full" rows="2" placeholder="z.B. Fensterplatz, vegetarisch, Kinderstuhl..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full py-3 text-ui tracking-button">
+          Reservierung anfragen (Demo)
+        </button>
+      </form>
+
+      <div id="demo-reservation-success" class="hidden mt-4 p-4 bg-[#1A2A1F] border border-[#5FAE8A] text-[#5FAE8A] text-sm rounded">
+        Vielen Dank! Ihre Anfrage wurde im Demo-Modus registriert.<br>
+        In einer echten Implementierung würde eine Bestätigungs-E-Mail versendet werden.
+      </div>
+    </div>
+
+    <div class="px-8 py-4 border-t border-[#3A3630] bg-[#0F0D0A]/80 text-center text-xs text-[#A89F90]">
+      Alternativ: <a href="mailto:hallo@sanctumatrium.de" class="underline hover:text-[#C5A46E]">hallo@sanctumatrium.de</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Optimized reservation form inputs: black text on white background for clarity and contrast */
+  .reservation-input,
+  .reservation-input:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #C5A26F !important;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 15px;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Inter', system_ui, sans-serif;
+    box-sizing: border-box;
+  }
+
+  .reservation-input:focus {
+    border-color: #C5A26F !important;
+    box-shadow: 0 0 0 3px rgba(197, 164, 110, 0.2) !important;
+    outline: none;
+  }
+
+  .reservation-input::placeholder {
+    color: #666666 !important;
+    opacity: 0.8;
+  }
+
+  /* For select and textarea to match */
+  select.reservation-input,
+  textarea.reservation-input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  select.reservation-input option {
+    background-color: #ffffff;
+    color: #000000;
+  }
+</style>
+
+<script>
+  // Store the element that opened the modal so we can return focus later
+  let lastFocusedElement = null;
+
+  // Make modal functions globally available
+  window.openReservationModal = function() {
+    const modal = document.getElementById('reservation-modal');
+    if (!modal) return;
+
+    // Remember who opened the modal
+    lastFocusedElement = document.activeElement;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+
+    // Reset form and hide success on open
+    const form = document.getElementById('demo-reservation-form');
+    const success = document.getElementById('demo-reservation-success');
+    if (form) form.classList.remove('hidden');
+    if (success) success.classList.add('hidden');
+    if (form) form.reset();
+
+    // Focus close button for accessibility
+    setTimeout(() => {
+      const closeBtn = modal.querySelector('button[aria-label*="schließen"]');
+      if (closeBtn) closeBtn.focus();
+    }, 100);
+  };
+
+  window.closeReservationModal = function() {
+    const modal = document.getElementById('reservation-modal');
+    if (!modal) return;
+
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+
+    // Restore body scroll
+    document.body.style.overflow = '';
+
+    // Return focus to the element that opened the modal
+    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+      lastFocusedElement.focus();
+      lastFocusedElement = null;
+    }
+  };
+
+  // Demo form handler
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('demo-reservation-form');
+    const success = document.getElementById('demo-reservation-success');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (form) form.classList.add('hidden');
+        if (success) {
+          success.classList.remove('hidden');
+          success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        // Reset after some time for demo reuse
+        setTimeout(() => {
+          if (form) form.classList.remove('hidden');
+          if (success) success.classList.add('hidden');
+          if (form) form.reset();
+        }, 4500);
+      });
+    }
+  });
+
+  // Close with Escape key + basic focus trap hint
+  document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('reservation-modal');
+    if (!modal || modal.classList.contains('hidden')) return;
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      window.closeReservationModal();
+    }
+
+    // Very basic focus trap
+    if (e.key === 'Tab') {
+      const focusable = modal.querySelectorAll('button, input, select, textarea, a[href]');
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+</script>

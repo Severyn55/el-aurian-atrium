@@ -1,0 +1,36 @@
+---
+import { getEntry } from 'astro:content';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const labels = await getEntry('labels', 'main');
+---
+
+<section id="reservierung" class={`max-w-screen-2xl mx-auto px-8 py-20 border-t border-white/10 bg-[#0F0D0A] ${className}`}>
+  <div class="max-w-2xl mx-auto text-center">
+    <div class="label text-[#C5A46E] mb-3">{labels?.data?.label_reservierung ?? 'RESERVIERUNG'}</div>
+    <h2 class="serif text-heading mb-6">Einen Tisch sichern</h2>
+    <p class="max-w-lg mx-auto text-[#A89F90] text-lg">
+      Wir haben nur wenige Plätze. Wenn Sie einen Abend bei uns verbringen möchten, 
+      reservieren Sie gerne direkt.
+    </p>
+
+    <button 
+      onclick="window.openReservationModal && window.openReservationModal()"
+      class="btn btn-primary mt-10 px-10 py-4 text-ui tracking-button inline-flex items-center justify-center"
+    >
+      {labels?.data?.cta_tisch_reservieren ?? 'TISCH RESERVIEREN'}
+    </button>
+
+    <div class="mt-8 text-sm text-[#A89F90]">
+      Oder schreiben Sie uns: 
+      <a href="mailto:hallo@sanctumatrium.de" class="underline hover:text-[#C5A46E]">
+        hallo@sanctumatrium.de
+      </a>
+    </div>
+  </div>
+</section>

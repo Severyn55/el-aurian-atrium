@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Begegnungen from '../components/Begegnungen.astro';
+import DasKonzept from '../components/DasKonzept.astro';
+import Events from '../components/Events.astro';
+import Speisekarten from '../components/Speisekarten.astro';
+import SocialDinnerClub from '../components/SocialDinnerClub.astro';
+import Reservierung from '../components/Reservierung.astro';
+import Footer from '../components/Footer.astro';
+import SectionDivider from '../components/SectionDivider.astro';
+import Navigation from '../components/Navigation.astro';
+---
+
+<Layout title="The El-Aurian Atrium • by Ambassador Veylan">
+  <!-- Navigation (now contains everything: logo, desktop nav, mobile trigger, and mobile menu) -->
+  <Navigation />
+
+  <!-- Hero Section -->
+  <Hero />
+
+  <!-- Speisekarte Section -->
+  <Speisekarten />
+  <SectionDivider />
+
+  <!-- Das Konzept + Interieur -->
+  <DasKonzept />
+  <SectionDivider />
+
+  <!-- Begegnungen Section -->
+  <Begegnungen />
+  <SectionDivider />
+
+  <!-- Events -->
+  <Events />
+  <SectionDivider />
+
+  <!-- Social Dinner Club -->
+  <SocialDinnerClub />
+  <SectionDivider />
+
+  <!-- Reservierung -->
+  <Reservierung />
+
+  <!-- Footer -->
+  <Footer />
+</Layout>

@@ -1,0 +1,61 @@
+---
+/**
+ * Lange Texte / Konzept Editor Card
+ * Exact structure from original for style and JS compatibility.
+ */
+---
+
+<div class="admin-card mb-8">
+  <div class="admin-card-header">
+    <div>
+      <div class="admin-card-title">Lange Texte</div>
+      <div class="admin-card-subtitle">Beschreibungen &amp; Fließtexte</div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="loadKonzeptArea()" class="admin-btn admin-btn-ghost text-xs">Daten laden</button>
+      <button id="toggle-konzept-btn"
+
+              class="admin-btn admin-btn-secondary text-xs flex items-center gap-x-1.5 px-3 py-1.5">
+        <span id="toggle-konzept-label">Ausklappen</span>
+        <svg id="toggle-konzept-chevron" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="konzept-editor-content" style="max-height:0;opacity:0;overflow:hidden;">
+    <div class="admin-card-body">
+      <div class="space-y-6">
+        <div>
+          <label for="konzept-headline" class="admin-label">Überschrift</label>
+          <input 
+            id="konzept-headline" 
+            type="text" 
+            class="admin-input text-[17px] bg-[#0F0D0A] text-[#F8F4EC] border-[#C5A26F]" 
+            placeholder="Modernste Web-Architektur." 
+          />
+        </div>
+
+        <div>
+          <div class="flex items-baseline justify-between mb-1.5">
+            <label for="konzept-body" class="admin-label mb-0">Text (Markdown)</label>
+            <span class="text-[10px] tracking-widest text-[#6B6459]">Absätze • **fett** • Listen</span>
+          </div>
+          <textarea 
+            id="konzept-body" 
+            rows="15" 
+            class="admin-textarea bg-[#0F0D0A] text-[#F8F4EC] border-[#C5A26F]" 
+            placeholder="Der ausführliche Fließtext hier als Markdown..."
+          ></textarea>
+          <div class="admin-help mt-1.5">Vollständige Markdown-Unterstützung. Änderungen werden beim Speichern als .md committet.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card-footer">
+      <button onclick="saveKonzeptArea()" class="admin-btn admin-btn-primary">Text speichern</button>
+      <div id="konzept-status" class="admin-status flex-1"></div>
+    </div>
+  </div>
+</div>

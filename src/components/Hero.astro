@@ -1,0 +1,208 @@
+---
+import { getImage } from 'astro:assets';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+// Starkes optimiertes Hero Standbild (Performance First)
+import heroStillRaw from '../assets/images/hero/hero-still.jpg';
+
+// Editable content from collections (Hero section via admin)
+import { getEntry } from 'astro:content';
+const heroContent = await getEntry('hero', 'hero');
+
+// Desktop Version (größer, höhere Qualität)
+const heroDesktop = await getImage({
+  src: heroStillRaw,
+  width: 1000,
+  format: 'webp',
+  quality: 65,
+});
+
+// Mobile Version (extrem aggressiv optimiert für LCP)
+const heroMobile = await getImage({
+  src: heroStillRaw,
+  width: 550,
+  format: 'webp',
+  quality: 58,
+});
+---
+
+<!-- 
+  Aggressive LCP optimization:
+  - Preload both mobile and desktop hero images
+  - Mobile version is smaller → better for real LCP on phones
+-->
+<link rel="preload" href={heroMobile.src} as="image" fetchpriority="high" media="(max-width: 768px)" />
+<link rel="preload" href={heroDesktop.src} as="image" fetchpriority="high" media="(min-width: 769px)" />
+
+<section id="main-content" tabindex="-1" class="hero-section relative flex items-center justify-center overflow-hidden bg-[#0F0D0A]">
+  <!-- 
+    Hero heights are now controlled by design tokens in Layout.astro.
+    Single source of truth → no more ad-hoc h-[50dvh] experiments.
+  -->
+  
+  <!-- 
+    PERFORMANCE-FIRST HERO
+    - Starkes optimiertes Standbild als primärer Background (sofort sichtbar + bestes LCP)
+    - Video nur auf Desktop, lazy geladen
+    - Mobile: Nur das Standbild (kein Video)
+  -->
+
+  <!-- Background: Optimiertes Standbild als echtes <img> für besseres LCP -->
+  <div class="js-hero-bg absolute inset-0 overflow-hidden">
+    <picture>
+      <!-- Mobile: aggressiv optimiert für LCP -->
+      <source 
+        media="(max-width: 768px)" 
+        srcset={heroMobile.src}
+        sizes="100vw"
+      >
+      
+      <!-- Desktop -->
+      <img 
+        src={heroDesktop.src} 
+        alt=""
+        width="1000"
+        height="667"
+        class="absolute inset-0 w-full h-full object-cover"
+        fetchpriority="high"
+        loading="eager"
+        decoding="async"
+        sizes="(max-width: 768px) 100vw, 1000px"
+      />
+    </picture>
+    
+    <!-- Dark Overlays für Lesbarkeit -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/85"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/25"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="hero-text-content relative z-10 max-w-4xl px-5 md:px-6 text-center pt-8 md:pt-12 pb-12 md:pb-16 transition-opacity duration-300">
+    
+    <!-- Title -->
+    <h1 class="heading-lcp text-white text-heading-mobile md:text-display-sm mb-6 md:mb-8">
+      {heroContent?.data?.headline ?? 'The El-Aurian Atrium'}
+    </h1>
+
+    <!-- CTAs -->
+    <div class="flex justify-center">
+      <!-- Primary -->
+      <button 
+        onclick="window.openReservationModal && window.openReservationModal()"
+        class="btn btn-primary px-8 md:px-10 py-3.5 md:py-4 text-sm md:text-[13px] tracking-[2px]"
+      >
+        {heroContent?.data?.cta ?? 'TISCH RESERVIEREN'}
+      </button>
+    </div>
+  </div>
+
+  <!-- 
+    Video wird NUR auf Desktop lazy nachgeladen (Performance First + A4)
+    Mobile bekommt bewusst KEIN Video → deutlich besseres LCP und weniger Daten
+  -->
+  <script>
+    // =============================================
+    // PERFORMANCE-FIRST HERO VIDEO (Desktop only)
+    // =============================================
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
+    if (isDesktop) {
+      const loadHeroVideo = () => {
+        console.log('[Hero] Attempting to load desktop video...');
+
+        const hero = document.querySelector('section');
+        if (!hero) {
+          console.warn('[Hero] Hero section not found');
+          return;
+        }
+
+        const bgContainer = hero.querySelector('.js-hero-bg');
+        if (!bgContainer) {
+          console.warn('[Hero] Background container not found');
+          return;
+        }
+
+        // Remove any previously added video (safety for dev/hot reload)
+        bgContainer.querySelectorAll('video').forEach(v => v.remove());
+
+        // Create the lazy video
+        const video = document.createElement('video');
+        video.className = 'absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700';
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.autoplay = true;           // Important for some browsers
+
+        const source = document.createElement('source');
+        source.src = `${import.meta.env.BASE_URL || '/'}assets/originals/hero/hero-long-table-motion-01.mp4`;
+        source.type = 'video/mp4';
+        video.appendChild(source);
+
+        // Append to background
+        bgContainer.appendChild(video);
+
+        video.addEventListener('canplaythrough', () => {
+          console.log('[Hero] Video canplaythrough → starting playback');
+
+          // Fade in
+          video.classList.remove('opacity-0');
+          video.classList.add('opacity-90');
+
+          // Explicitly play (most reliable way)
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => {
+              console.warn('[Hero] Autoplay prevented:', err);
+            });
+          }
+        }, { once: true });
+
+        video.addEventListener('error', (e) => {
+          console.error('[Hero] Video failed to load', e);
+        });
+
+        // Start loading
+        video.load();
+      };
+
+      // Load after full page load (non-blocking for LCP)
+      if (document.readyState === 'complete') {
+        setTimeout(loadHeroVideo, 350);
+      } else {
+        window.addEventListener('load', () => setTimeout(loadHeroVideo, 350), { once: true });
+      }
+    } else {
+      console.log('[Hero] Mobile detected → no video loaded (performance optimization)');
+    }
+  </script>
+
+<style>
+  /* ============================================
+     HERO HEIGHT SYSTEM (uses tokens from Layout)
+     Final, stable, no more guessing per breakpoint.
+  ============================================ */
+  .hero-section {
+    height: var(--hero-height-mobile);
+    min-height: 420px;
+  }
+
+  @media (min-width: 768px) {
+    .hero-section {
+      height: var(--hero-height-tablet);
+      min-height: 480px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-section {
+      height: var(--hero-height-desktop);
+      min-height: 580px;
+    }
+  }
+</style>
+</section>

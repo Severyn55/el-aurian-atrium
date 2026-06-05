@@ -1,0 +1,35 @@
+---
+// src/components/DesktopNav.astro
+import { navigationItems } from '../data/navigation';
+import { getEntry } from 'astro:content';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const labels = await getEntry('labels', 'main');
+
+const navLabels: Record<string, string | undefined> = {
+  Karte: labels?.data?.nav_karte,
+  Konzept: labels?.data?.nav_konzept,
+  Begegnungen: labels?.data?.nav_begegnungen,
+  Events: labels?.data?.nav_events,
+  Member: labels?.data?.nav_member,
+  Reservierung: labels?.data?.nav_reservierung,
+};
+---
+
+<div class:list={['hidden xl:flex items-center gap-x-10 text-[13px] tracking-[2px]', className]}>
+  {
+    navigationItems.map((item) => (
+      <a 
+        href={item.href} 
+        class="text-kk-text-muted hover:text-white transition-colors"
+      >
+        {navLabels[item.label] || item.label}
+      </a>
+    ))
+  }
+</div>

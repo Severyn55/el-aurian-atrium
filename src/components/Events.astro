@@ -1,0 +1,153 @@
+---
+import Image from './ui/Image.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+// Optimized images
+import saturdayNights from '../assets/images/events/20260604-saturday-nights.jpg';
+import champagne from '../assets/images/drinks/20260604-champagne-vintage.jpg';
+import signatureCocktails from '../assets/images/drinks/20260604-signature-cocktails.jpg';
+import facadeProgram from '../assets/images/details/20260604-facade-program.jpg';
+
+// Labels from collection
+import { getEntry } from 'astro:content';
+const labels = await getEntry('labels', 'main');
+const tagesablaufEntry = await getEntry('tagesablauf', 'tagesablauf');
+const tagesablauf = tagesablaufEntry?.data;
+---
+
+<section id="events" class={`max-w-screen-2xl mx-auto px-8 py-20 ${className}`}>
+  <div class="max-w-2xl mb-10">
+    <div class="label text-[#C5A46E] mb-2">{labels?.data?.label_hohepunkte ?? 'HÖHEPUNKTE'}</div>
+    <h2 class="serif text-heading">Events mit Charakter.</h2>
+  </div>
+
+  <!-- Tagesablauf / Programm Visual -->
+  <div class="mb-10 relative rounded-3xl overflow-hidden gold-frame h-[340px] md:h-[300px] flex items-center">
+    <div class="absolute inset-0 bg-cover bg-center" 
+         style={`background-image: url('${facadeProgram.src}'); 
+                 filter: brightness(0.28) saturate(0.55) contrast(1.05);`}>
+    </div>
+    
+    <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50"></div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-8 md:px-12 w-full">
+      <div class="max-w-2xl">
+        <div class="label text-[#C5A46E] mb-3">{labels?.data?.label_tagesablauf ?? 'TAGESABLAUF'}</div>
+        
+        <div class="text-white text-lg md:text-xl tracking-tight whitespace-pre-line">
+          {tagesablauf?.text ?? '12:30 – 20:30 Kitchen\n17:30 – 22:30 Fine Dine + Beats\n22:30 – 01:00 Cocktails, Beats & Party\n\nMit täglich wechselnden Tagesgerichten nach Aushang'}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daydrinking Saturdays -->
+  <div class="mb-10 gold-frame overflow-hidden">
+    <!-- 
+      Robust grid: explicit min-height on desktop prevents fragile h-full dependency.
+      Image always fills its container properly.
+    -->
+    <div class="grid md:grid-cols-2 md:min-h-[420px]">
+      <!-- Visual -->
+      <div class="relative md:h-full">
+        <Image 
+          src={saturdayNights} 
+          alt="Saturday Nights - Cocktails, Beats &amp; Party" 
+          widths={[500, 800, 1100]}
+          sizes="(max-width: 768px) 100vw, 50vw"
+          class="w-full h-full object-cover aspect-[4/3] md:aspect-auto md:h-full"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="p-10 md:p-12 flex flex-col justify-center bg-[#1A1714]">
+        <div class="label text-[#C5A46E] mb-3">{labels?.data?.label_jeden_samstag ?? 'JEDEN SAMSTAG'}</div>
+        <h3 class="serif text-subhead mb-4">Daydrinking Saturdays</h3>
+        
+        <div class="space-y-2 text-[#A89F90] mb-6">
+          <div class="flex items-center gap-x-2">
+            <span class="text-[#C5A46E]">14:00 – 20:00</span>
+            <span class="text-xs">•</span>
+            <span>Limited seating</span>
+          </div>
+          <div>Natürliche Weine • Champagne • Signature Drinks</div>
+          <div>Live Music • Persönliche Atmosphäre</div>
+        </div>
+
+        <p class="text-white leading-relaxed">
+          Der Samstag, wie er sein sollte. Kein normales Daydrinking – ein kuratiertes Erlebnis 
+          in kleinem Kreis. Nur wenige Plätze. Nur gute Menschen.
+        </p>
+
+        <div class="mt-6">
+          <div class="label-tight text-[#C5A46E] mb-2">{labels?.data?.label_signature_drinks ?? 'SIGNATURE DRINKS'}</div>
+          <div class="flex gap-4">
+            <Image 
+              src={champagne} 
+              alt="Signature Drinks - Vintage Weine" 
+              widths={[350, 650]}
+              sizes="320px"
+              class="w-full max-w-[320px]"
+              goldFrame={true}
+              subtleLift={true}
+            />
+            <Image 
+              src={signatureCocktails} 
+              alt="Signature Cocktails - Bunte Longdrinks" 
+              widths={[350, 650]}
+              sizes="320px"
+              class="w-full max-w-[320px]"
+              goldFrame={true}
+              subtleLift={true}
+            />
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <a href="#reservierung" 
+             class="btn btn-primary px-8 py-3 text-ui tracking-button">
+            {labels?.data?.cta_platz_sichern ?? 'PLATZ SICHERN'}
+          </a>
+          <div class="text-xs text-[#A89F90] mt-2">Begrenzte Kapazität • Voranmeldung empfohlen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smaller Event Cards -->
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card gold-frame p-8 subtle-lift">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="label-tight text-[#C5A46E]">{labels?.data?.label_privat ?? 'PRIVAT'}</div>
+          <div class="text-subhead-sm serif mt-1">Private Celebrations</div>
+        </div>
+        <div class="text-right text-xs text-[#A89F90]">8–20 GÄSTE</div>
+      </div>
+      <p class="mt-5 text-sm text-[#A89F90]">
+        Geburtstage, Verlobungen oder einfach nur ein besonderer Abend mit Freunden. 
+        Der Raum gehört dann ganz Ihnen.
+      </p>
+    </div>
+    
+    <div class="card gold-frame p-8 subtle-lift">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="label-tight text-[#C5A46E]">{labels?.data?.label_popup ?? 'POP-UP'}</div>
+          <div class="text-subhead-sm serif mt-1">Themed Evenings</div>
+        </div>
+        <div class="text-right text-xs text-[#A89F90]">LIMITIERT</div>
+      </div>
+      <p class="mt-5 text-sm text-[#A89F90]">
+        Besondere Abende mit Winzern, Köchen oder Musikern. Immer klein, immer anders, immer mit guter Laune.
+      </p>
+    </div>
+  </div>
+</section>

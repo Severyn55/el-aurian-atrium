@@ -1,0 +1,86 @@
+﻿---
+title: "Studio | Portfolio Restaurant"
+import Layout from '../../layouts/Layout.astro';
+import '../../styles/global.css';
+import '../../styles/admin.css';
+import '@fontsource/playfair-display/400.css';
+import '@fontsource/playfair-display/500.css';
+import '@fontsource/inter/400.css';
+
+import AdminCard from '../../components/admin/AdminCard.astro';
+import GitHubConnectionCard from '../../components/admin/GitHubConnectionCard.astro';
+import TagesablaufEditor from '../../components/admin/TagesablaufEditor.astro';
+import HeroEditor from '../../components/admin/HeroEditor.astro';
+import LabelsEditor from '../../components/admin/LabelsEditor.astro';
+import KonzeptEditor from '../../components/admin/KonzeptEditor.astro';
+import PortraitsManager from '../../components/admin/PortraitsManager.astro';
+import MenuEditor from '../../components/admin/MenuEditor.astro';
+---
+
+<Layout title="Studio | Portfolio Restaurant">
+<div class="min-h-screen bg-[#0F0D0A] text-[#F4EDE3] p-8 admin-shell">
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Premium Admin Header -->
+    <header class="mb-10 flex items-end justify-between border-b border-[#322E28] pb-6">
+      <div>
+        <div class="flex items-center gap-x-3">
+          <div class="font-serif text-[21px] tracking-[-0.3px] text-[#C5A26F]">Portfolio Restaurant</div>
+          <div class="text-[10px] tracking-[3px] text-[#6B6459] font-medium pt-1">STUDIO</div>
+        </div>
+        <div class="text-[#EDEAE5] text-3xl font-medium tracking-[-0.6px] mt-1">Studio</div>
+      </div>
+
+      <a 
+        href={`${import.meta.env.BASE_URL || '/'}`} 
+        class="group inline-flex items-center gap-x-2 text-sm tracking-[1.5px] text-[#A89F90] hover:text-[#C5A26F] transition-all duration-200"
+      >
+        <span class="group-hover:-translate-x-0.5 transition-transform">←</span> 
+        <span>Zurück zur Website</span>
+      </a>
+    </header>
+
+    <!-- Phase 1: Klare Positionierung als Studie (kein halbgares Mittelding) -->
+    <div class="mb-6 rounded-xl border border-[#C5A46E] bg-[#1C1814] px-4 py-3 text-sm text-[#EDEAE5]">
+      <strong class="text-[#C5A46E]">Studio Admin — Technische Demonstration</strong><br>
+      Dieses Interface demonstriert einen vollständig browserbasierten Content-Workflow mit direkter GitHub-Integration (Astro + Vanilla). 
+      Es dient als Referenz und für den internen Studio-Gebrauch. 
+      Siehe <a href="https://github.com/Severyn55/el-aurian-atrium/blob/main/README.md" target="_blank" class="underline">README → Responsible Use</a>.
+    </div>
+
+    <!-- Admin styles are now in src/styles/admin.css (imported globally for this page) -->
+
+    <!-- GitHub Connection Card (extracted component) -->
+    <GitHubConnectionCard />
+
+    <!-- Menu Editor (Lunch + Dinner, extracted component) -->
+    <MenuEditor />
+
+    <!-- Hero Editor (extracted component) -->
+    <HeroEditor />
+
+    <!-- Labels Editor (extracted component) -->
+    <LabelsEditor />
+
+    <!-- Konzept Editor (extracted component) -->
+    <KonzeptEditor />
+
+    <!-- Höhepunkte / Tagesablauf Editor (extracted component) -->
+    <TagesablaufEditor />
+
+    <!-- Portraits Manager (extracted component) -->
+    <PortraitsManager />
+
+  </div>
+</div>
+</Layout>
+
+<script type="module">
+  // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
+  // Using /src/... absolute-from-root import for reliable resolution inside Astro's processed script modules (avoids ../ count issues with pages/admin/ depth + Vite virtual modules).
+  import { initSpeisekartenAdmin } from '/src/scripts/admin/speisekarten-admin';
+  initSpeisekartenAdmin();
+</script>
+
+
+

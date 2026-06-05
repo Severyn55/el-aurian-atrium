@@ -1,0 +1,59 @@
+name: Build & Deploy on Content Changes (Menus, Konzept, Portraits, etc.)
+
+on:
+  push:
+    # We trigger on (almost) every push to main so that code changes (admin UI, components, etc.)
+    # as well as content uploads automatically cause a full site rebuild + deploy.
+    # The old narrow paths filter only caught content changes and meant pure code pushes
+    # (like admin improvements) required a manual workflow_dispatch.
+    branches: [main]
+
+  workflow_dispatch:  # Allow manual trigger (still useful from the admin UI)
+
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    env:
+      # Opt into Node 24 to avoid deprecation warnings for actions (Node 20 will be removed in 2026)
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # cache temporarily disabled to debug ci issues after refactor; re-enable after lockfile stabilizes
+          # cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Upload build artifact (for Netlify/Vercel/etc.)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-dist
+          path: dist/
+          retention-days: 1

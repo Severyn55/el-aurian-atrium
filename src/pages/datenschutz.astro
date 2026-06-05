@@ -1,0 +1,83 @@
+﻿---
+import Layout from '../layouts/Layout.astro';
+import { getEntry } from 'astro:content';
+
+const labels = await getEntry('labels', 'main');
+---
+
+<Layout title="Datenschutz | The El-Aurian Atrium">
+  <section class="max-w-screen-2xl mx-auto px-8 py-20">
+    <div class="max-w-3xl mx-auto">
+      <!-- Elegant gold-framed container matching our high-craft design concept -->
+      <div class="gold-frame p-8 md:p-12 bg-[#1A1714]">
+        <div class="label text-[#C5A46E] mb-3 tracking-[3px]">RECHTLICHES</div>
+        <h1 class="serif text-heading mb-8 tracking-tight">Datenschutzerklärung</h1>
+
+        <div class="prose prose-invert text-[#A89F90] max-w-none text-[15px] leading-relaxed">
+          <p class="mb-6">
+            Wir freuen uns über Ihr Interesse an unserem Unternehmen und unserer Website. Der Schutz Ihrer personenbezogenen Daten ist uns ein wichtiges Anliegen. Im Folgenden informieren wir Sie darüber, welche Daten wir erheben, wie wir diese verarbeiten und welche Rechte Sie haben.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">1. Verantwortlicher</h2>
+          <p>
+            The El-Aurian Atrium GmbH<br>
+            The Nexus Promenade 47<br>
+            00047 Starbase 47<br><br>
+            Vertreten durch: Ambassador Veylan<br>
+            E-Mail: <a href="mailto:hallo@el-aurian-atrium.com" class="underline hover:text-[#C5A46E] transition-colors">hallo@el-aurian-atrium.com</a>
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">2. Erhebung und Verarbeitung personenbezogener Daten</h2>
+          <p>
+            Unsere Website ist rein statisch. Es werden keine personenbezogenen Daten automatisch erhoben oder gespeichert, außer den technisch notwendigen Server-Logfiles (IP-Adresse, Zugriffszeit, aufgerufene Seite). Diese Daten dienen ausschließlich der technischen Bereitstellung und Sicherheit der Website und werden nach spätestens 7 Tagen gelöscht.
+          </p>
+          <p class="mt-4">
+            Bei Nutzung unseres Demo-Reservierungsformulars werden die eingegebenen Daten (Name, E-Mail, Datum, Uhrzeit, Gästeanzahl, Wünsche) nur temporär im Browser verarbeitet und nicht an uns übermittelt oder gespeichert. Dieses Formular dient ausschließlich Demonstrationszwecken.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">3. Rechtsgrundlagen der Verarbeitung</h2>
+          <p>
+            Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der sicheren und funktionsfähigen Bereitstellung der Website) sowie Art. 6 Abs. 1 lit. a DSGVO (Einwilligung) bei freiwilliger Kontaktaufnahme.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">4. Weitergabe von Daten</h2>
+          <p>
+            Eine Weitergabe Ihrer Daten an Dritte erfolgt nicht. Ausgenommen sind gesetzliche Verpflichtungen oder technische Dienstleister, die uns bei der Bereitstellung der Website unterstützen (z. B. Hosting-Provider) und die vertraglich zur Einhaltung des Datenschutzes verpflichtet sind.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">5. Speicherdauer</h2>
+          <p>
+            Personenbezogene Daten werden nur so lange gespeichert, wie dies für die Erreichung der genannten Zwecke erforderlich ist oder gesetzliche Aufbewahrungsfristen dies vorsehen. Server-Logfiles werden nach 7 Tagen gelöscht.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">6. Ihre Rechte</h2>
+          <p>
+            Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO), Datenübertragbarkeit (Art. 20 DSGVO) sowie Widerspruch gegen die Verarbeitung (Art. 21 DSGVO). Zur Ausübung Ihrer Rechte wenden Sie sich bitte an die oben genannte Kontaktadresse.
+          </p>
+          <p class="mt-4">
+            Sie haben zudem das Recht, sich bei einer Aufsichtsbehörde zu beschweren.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">7. SSL-Verschlüsselung</h2>
+          <p>
+            Diese Website nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://“ auf „https://“ wechselt und an dem Schloss-Symbol in Ihrer Browserzeile.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">8. Cookies und Tracking</h2>
+          <p>
+            Unsere Website verwendet keine Cookies oder Tracking-Technologien (z. B. Google Analytics, Matomo). Es findet keine Analyse des Nutzerverhaltens statt.
+          </p>
+
+          <h2 class="serif text-subhead text-[#C5A26F] mt-10 mb-4 tracking-tight">9. Änderungen dieser Datenschutzerklärung</h2>
+          <p>
+            Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen, um sie stets den aktuellen rechtlichen Anforderungen anzupassen oder um Änderungen unserer Leistungen umzusetzen. Die jeweils aktuelle Version finden Sie auf dieser Seite.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8 text-center text-xs text-[#A89F90]">
+        Diese Datenschutzerklärung gilt für die Website des The El-Aurian Atrium. Die Darstellung dient Demonstrationszwecken im Rahmen eines Portfolio-Projekts. Es werden keine echten personenbezogenen Daten verarbeitet.
+      </div>
+    </div>
+  </section>
+</Layout>

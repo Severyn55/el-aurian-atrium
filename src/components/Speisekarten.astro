@@ -1,0 +1,556 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const lunchEntries = await getCollection('lunch');
+const dinnerEntries = await getCollection('dinner');
+
+const lunchData = lunchEntries[0]?.data;
+const dinnerData = dinnerEntries[0]?.data;
+
+const labels = await getEntry('labels', 'main');
+
+const lunchPdf = lunchData?.pdf ? (lunchData.pdf.startsWith('/') ? (import.meta.env.BASE_URL || '/') + lunchData.pdf.slice(1) : lunchData.pdf) : '#';
+const dinnerPdf = dinnerData?.pdf ? (dinnerData.pdf.startsWith('/') ? (import.meta.env.BASE_URL || '/') + dinnerData.pdf.slice(1) : dinnerData.pdf) : '#';
+---
+
+
+<section id="karte" class={`max-w-screen-2xl mx-auto px-8 py-20 ${className}`}>
+  <div class="max-w-3xl mb-10">
+    <div class="label text-[#C5A46E] mb-3">{labels?.data?.label_kueche ?? 'KÜCHE & WEIN'}</div>
+    <h2 class="serif text-heading">{labels?.data?.label_speisekarte ?? 'Speisekarte'}</h2>
+    <p class="mt-4 text-[#A89F90] max-w-lg">
+      {labels?.data?.speisekarte_beschreibung ?? 'Saisonal, präzise und zum Teilen gedacht. Die Karten wechseln regelmäßig.'}
+    </p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Lunch Card -->
+    <div class="speisekarte-card group relative overflow-hidden card gold-frame flex flex-col min-h-[380px]">
+      <video 
+        class="absolute inset-0 w-full h-full object-cover transition-opacity"
+        width="100%"
+        height="100%"
+        muted 
+        loop 
+        playsinline
+        poster={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-lunch-still.jpg`}
+        preload="metadata"
+      >
+        <source src={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-lunch.webm`} type="video/webm">
+        <source src={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-lunch.mp4`} type="video/mp4">
+      </video>
+      
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+
+      <div class="relative z-10 p-9 flex flex-col flex-1">
+        <div class="flex items-baseline justify-between mb-6">
+          <div>
+            <div class="label-tight text-[#C5A46E]">{labels?.data?.label_mittags ?? 'MITTAGS'}</div>
+            <div class="text-4xl serif tracking-tight text-white">Lunch</div>
+          </div>
+          <div class="text-right text-sm text-[#C5A46E]">12:00 – 14:30</div>
+        </div>
+
+        <div class="space-y-2 text-sm text-[#EDE6D9] mb-8 flex-1">
+          {(lunchData?.categories?.flatMap(c => c.items) ?? []).slice(0, 4).map((item, i) => (
+            <div key={i}>{item.name}</div>
+          ))}
+        </div>
+
+        <button 
+          class="js-open-lunch-modal btn btn-secondary gold-frame mt-auto w-full text-ui tracking-button py-3"
+        >
+          {labels?.data?.cta_vollstaendige_karte ?? 'KARTE ANSEHEN'}
+        </button>
+      </div>
+    </div>
+
+    <!-- Dinner Card -->
+    <div class="speisekarte-card group relative overflow-hidden card gold-frame flex flex-col min-h-[380px]">
+      <video 
+        class="absolute inset-0 w-full h-full object-cover transition-opacity"
+        width="100%"
+        height="100%"
+        muted 
+        loop 
+        playsinline
+        poster={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-dinner-still.jpg`}
+        preload="metadata"
+      >
+        <source src={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-dinner.webm`} type="video/webm">
+        <source src={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-dinner.mp4`} type="video/mp4">
+      </video>
+      
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+
+      <div class="relative z-10 p-9 flex flex-col flex-1">
+        <div class="flex items-baseline justify-between mb-6">
+          <div>
+            <div class="label-tight text-[#C5A46E]">{labels?.data?.label_abends ?? 'ABENDS'}</div>
+            <div class="text-4xl serif tracking-tight text-white">Dinner</div>
+          </div>
+          <div class="text-right text-sm text-[#C5A46E]">ab 18:00</div>
+        </div>
+
+        <div class="space-y-2 text-sm text-[#EDE6D9] mb-8 flex-1">
+          {(dinnerData?.categories?.flatMap(c => c.items) ?? []).slice(0, 4).map((item, i) => (
+            <div key={i}>{item.name}{item.name.includes('Austern') ? ' — nach Tagesangebot' : ''}</div>
+          ))}
+        </div>
+
+        <button 
+          class="js-open-dinner-modal btn btn-secondary gold-frame mt-auto w-full text-ui tracking-button py-3"
+        >
+          {labels?.data?.cta_vollstaendige_karte ?? 'KARTE ANSEHEN'}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lunch Modal -->
+<div id="lunch-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+  <div class="relative w-full max-w-2xl bg-[#0F0D0A] gold-frame overflow-hidden h-[95dvh] md:h-auto md:max-h-[92dvh] flex flex-col !p-0">
+    
+    <!-- Background Video (wird erst beim Öffnen des Modals geladen) -->
+    <video id="lunch-modal-video"
+           class="absolute inset-0 w-full h-full object-cover opacity-26" 
+           width="100%"
+           height="100%"
+           muted 
+           loop 
+           playsinline
+           poster={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-lunch-still.jpg`}>
+    </video>
+    
+    <!-- Lighter dark overlays for better readability while keeping atmosphere -->
+    <div class="absolute inset-0 bg-black/30 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[#0F0D0A]/75 pointer-events-none"></div>
+    <!-- Fixed Header -->
+    <div class="flex items-center justify-between px-6 py-4 md:px-8 md:py-6 border-b border-[#3A3630] bg-[#0F0D0A]/95 sticky top-0 z-30 backdrop-blur-sm">
+      <div>
+        <div class="label-tight text-[#C5A46E]">{labels?.data?.label_mittags ?? 'MITTAGS'}</div>
+        <div class="text-2xl md:text-3xl serif tracking-tight">Lunch</div>
+        <div class="text-xs md:text-sm text-[#A89F90]">12:00 – 14:30</div>
+      </div>
+      <button class="js-close-lunch-modal text-3xl text-[#A89F90] hover:text-white transition-colors">×</button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto overscroll-contain px-3 py-4 md:px-4 md:py-6 bg-[#0F0D0A]/76">
+      <div class="mx-auto max-w-2xl rounded-xl border border-white/10 bg-[#0F0D0A]/60 p-4 shadow-2xl md:p-6">
+        {
+          lunchData?.categories && lunchData.categories.length > 0 ? (
+            lunchData.categories.map((category, idx) => (
+              <div key={category.title || idx} class={idx === 0 ? '' : 'mt-5 md:mt-6'}>
+                <div class="label-tight text-[#F4EDE3] font-semibold mb-2 md:mb-3 text-xs md:text-sm [text-shadow:_0_1px_2px_rgb(0,0,0,0.7)]">
+                  {category.title}
+                </div>
+                <div class="space-y-2 md:space-y-3 text-sm md:text-base text-white [text-shadow:_0_1px_3px_rgb(0,0,0,0.6)]">
+                  {category.items?.map((item, itemIdx) => (
+                    <div key={`${category.title}-${itemIdx}`} class="py-0.5">
+                      <div class="flex justify-between items-baseline gap-4">
+                        <span>{item.name}</span>
+                        <span class="text-[#EDE6D9] tabular-nums shrink-0">{item.price}</span>
+                      </div>
+                      {item.description && (
+                        <div class="text-[12px] md:text-xs text-[#A89F90] mt-0.5 leading-tight pr-4">
+                          {item.description}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p class="text-[#A89F90] text-center py-8">Keine Speisen verfügbar.</p>
+          )
+        }
+      </div>
+    </div>
+
+    <div class="p-5 pt-3 md:p-8 md:pt-4 border-t border-[#3A3630] bg-[#0F0D0A]/76 relative z-20">
+      <a 
+        href={lunchPdf} 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary w-full text-xs md:text-ui tracking-button py-2.5 md:py-3 font-semibold"
+        onclick="const m=document.getElementById('lunch-modal'); if(m){m.classList.remove('flex');m.classList.add('hidden'); document.body.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.width=''; document.body.classList.remove('modal-scroll-locked');}">
+        {labels?.data?.cta_pdf_lunch ?? 'LUNCHKARTE ALS PDF'}
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Dinner Modal -->
+<div id="dinner-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+  <div class="relative w-full max-w-2xl bg-[#0F0D0A] gold-frame overflow-hidden h-[95dvh] md:h-auto md:max-h-[92dvh] flex flex-col !p-0">
+    
+    <!-- Background Video (wird erst beim Öffnen des Modals geladen) -->
+    <video id="dinner-modal-video"
+           class="absolute inset-0 w-full h-full object-cover opacity-26" 
+           width="100%"
+           height="100%"
+           muted 
+           loop 
+           playsinline
+           poster={`${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-dinner-still.jpg`}>
+    </video>
+    
+    <!-- Lighter dark overlays for better readability while keeping atmosphere -->
+    <div class="absolute inset-0 bg-black/30 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[#0F0D0A]/75 pointer-events-none"></div>
+    <!-- Fixed Header -->
+    <div class="flex items-center justify-between px-6 py-4 md:px-8 md:py-6 border-b border-[#3A3630] bg-[#0F0D0A]/95 sticky top-0 z-30 backdrop-blur-sm">
+      <div>
+        <div class="label-tight text-[#C5A46E]">{labels?.data?.label_abends ?? 'ABENDS'}</div>
+        <div class="text-2xl md:text-3xl serif tracking-tight">Dinner</div>
+        <div class="text-xs md:text-sm text-[#A89F90]">ab 18:00</div>
+      </div>
+      <button class="js-close-dinner-modal text-3xl text-[#A89F90] hover:text-white transition-colors">×</button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto overscroll-contain px-3 py-4 md:px-4 md:py-6 bg-[#0F0D0A]/76">
+      <div class="mx-auto max-w-2xl rounded-xl border border-white/10 bg-[#0F0D0A]/60 p-4 shadow-2xl md:p-6">
+        {
+          dinnerData?.categories && dinnerData.categories.length > 0 ? (
+            dinnerData.categories.map((category, idx) => (
+              <div key={category.title || idx} class={idx === 0 ? '' : 'mt-5 md:mt-6'}>
+                <div class="label-tight text-[#F4EDE3] font-semibold mb-2 md:mb-3 text-xs md:text-sm [text-shadow:_0_1px_2px_rgb(0,0,0,0.7)]">
+                  {category.title}
+                </div>
+                <div class="space-y-2 md:space-y-3 text-sm md:text-base text-white [text-shadow:_0_1px_3px_rgb(0,0,0,0.6)]">
+                  {category.items?.map((item, itemIdx) => (
+                    <div key={`${category.title}-${itemIdx}`} class="py-0.5">
+                      <div class="flex justify-between items-baseline gap-4">
+                        <span>{item.name}</span>
+                        <span class="text-[#EDE6D9] tabular-nums shrink-0">{item.price}</span>
+                      </div>
+                      {item.description && (
+                        <div class="text-[12px] md:text-xs text-[#A89F90] mt-0.5 leading-tight pr-4">
+                          {item.description}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p class="text-[#A89F90] text-center py-8">Keine Speisen verfügbar.</p>
+          )
+        }
+      </div>
+    </div>
+
+    <div class="p-5 pt-3 md:p-8 md:pt-4 border-t border-[#3A3630] bg-[#0F0D0A]/76 relative z-20">
+      <a 
+        href={dinnerPdf} 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary w-full text-xs md:text-ui tracking-button py-2.5 md:py-3 font-semibold"
+        onclick="const m=document.getElementById('dinner-modal'); if(m){m.classList.remove('flex');m.classList.add('hidden'); document.body.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.width=''; document.body.classList.remove('modal-scroll-locked');}">
+        {labels?.data?.cta_pdf_dinner ?? 'DINNERKARTE ALS PDF'}
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Hover video logic for Speisekarten (improved reliability)
+  document.addEventListener('DOMContentLoaded', () => {
+    // Robust mobile-friendly body scroll lock (improves modal scroll UX without changing modal structure)
+    let scrollPosition = 0;
+
+    function lockBodyScroll() {
+      scrollPosition = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPosition}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-scroll-locked');
+    }
+
+    function unlockBodyScroll() {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-scroll-locked');
+      window.scrollTo(0, scrollPosition);
+    }
+    const cards = document.querySelectorAll('.speisekarte-card');
+
+    cards.forEach(card => {
+      const video = card.querySelector('video');
+      if (!video) return;
+
+      const tryPlay = () => {
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.warn('[Speisekarten] Video play failed:', err);
+          });
+        }
+      };
+
+      card.addEventListener('mouseenter', () => {
+        if (video.readyState >= 3) {
+          // Enough data to play without buffering
+          tryPlay();
+        } else {
+          // Wait until the video can play smoothly
+          video.addEventListener('canplaythrough', tryPlay, { once: true });
+          // Force loading if it hasn't started yet
+          if (video.readyState < 2) {
+            video.load();
+          }
+        }
+      });
+
+      card.addEventListener('mouseleave', () => {
+        video.pause();
+      });
+    });
+
+    // Modal open buttons
+    const lunchBtn = document.querySelector('.js-open-lunch-modal');
+    const dinnerBtn = document.querySelector('.js-open-dinner-modal');
+
+    if (lunchBtn) {
+      lunchBtn.addEventListener('click', () => {
+        const modal = document.getElementById('lunch-modal');
+        const video = document.getElementById('lunch-modal-video');
+
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          lockBodyScroll();
+        }
+
+        // Dynamically load video source only when modal opens
+        if (video && !video.hasAttribute('data-loaded')) {
+          video.innerHTML = `
+            <source src="${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-lunch.webm" type="video/webm">
+            <source src="${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-lunch.mp4" type="video/mp4">
+          `;
+          video.load();
+          video.play().catch(() => {});
+          video.setAttribute('data-loaded', 'true');
+        }
+      });
+    }
+
+    if (dinnerBtn) {
+      dinnerBtn.addEventListener('click', () => {
+        const modal = document.getElementById('dinner-modal');
+        const video = document.getElementById('dinner-modal-video');
+
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          lockBodyScroll();
+        }
+
+        // Dynamically load video source only when modal opens
+        if (video && !video.hasAttribute('data-loaded')) {
+          video.innerHTML = `
+            <source src="${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-dinner.webm" type="video/webm">
+            <source src="${import.meta.env.BASE_URL || '/'}assets/videos/20260604-speisekarten-dinner.mp4" type="video/mp4">
+          `;
+          video.load();
+          video.play().catch(() => {});
+          video.setAttribute('data-loaded', 'true');
+        }
+      });
+    }
+
+    // Close buttons and backdrop
+    const lunchModal = document.getElementById('lunch-modal');
+    const dinnerModal = document.getElementById('dinner-modal');
+
+    if (lunchModal) {
+      lunchModal.addEventListener('click', (e) => {
+        if (e.target === lunchModal) {
+          lunchModal.classList.remove('flex');
+          lunchModal.classList.add('hidden');
+          unlockBodyScroll();
+        }
+      });
+
+      const closeBtn = lunchModal.querySelector('.js-close-lunch-modal');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          lunchModal.classList.remove('flex');
+          lunchModal.classList.add('hidden');
+          unlockBodyScroll();
+
+          // Unload video to free memory
+          const video = document.getElementById('lunch-modal-video');
+          if (video) {
+            video.pause();
+            video.innerHTML = '';
+            video.removeAttribute('data-loaded');
+          }
+        });
+      }
+    }
+
+    if (dinnerModal) {
+      dinnerModal.addEventListener('click', (e) => {
+        if (e.target === dinnerModal) {
+          dinnerModal.classList.remove('flex');
+          dinnerModal.classList.add('hidden');
+          unlockBodyScroll();
+        }
+      });
+
+      const closeBtn = dinnerModal.querySelector('.js-close-dinner-modal');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          dinnerModal.classList.remove('flex');
+          dinnerModal.classList.add('hidden');
+          unlockBodyScroll();
+
+          // Unload video to free memory
+          const video = document.getElementById('dinner-modal-video');
+          if (video) {
+            video.pause();
+            video.innerHTML = '';
+            video.removeAttribute('data-loaded');
+          }
+        });
+      }
+    }
+  });
+
+  // Close modals with Escape key (global)
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const lunchModal = document.getElementById('lunch-modal');
+      const dinnerModal = document.getElementById('dinner-modal');
+
+      if (lunchModal && !lunchModal.classList.contains('hidden')) {
+        lunchModal.classList.remove('flex');
+        lunchModal.classList.add('hidden');
+        unlockBodyScroll();
+      } else if (dinnerModal && !dinnerModal.classList.contains('hidden')) {
+        dinnerModal.classList.remove('flex');
+        dinnerModal.classList.add('hidden');
+        unlockBodyScroll();
+      }
+    }
+  });
+
+</script>
+
+<style>
+  .speisekarte-card video {
+    filter: brightness(0.38) saturate(0.7) contrast(1.05);
+  }
+
+  /* Robust mobile modal scroll enhancements (applied to existing structure) */
+  #lunch-modal .flex-1.overflow-y-auto,
+  #dinner-modal .flex-1.overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    touch-action: pan-y;
+
+    /* Force content above the absolute video + overlays */
+    position: relative;
+    z-index: 20;
+  }
+
+  /* Content card: semi-transparent so the background video remains visible behind it */
+  #lunch-modal .flex-1.overflow-y-auto > .mx-auto,
+  #dinner-modal .flex-1.overflow-y-auto > .mx-auto {
+    position: relative;
+    z-index: 25;
+    background-color: rgba(15, 13, 10, 0.58) !important;
+    background-image: none !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* Scroll wrapper (the area with padding around the card): even more transparent */
+  #lunch-modal .flex-1.overflow-y-auto,
+  #dinner-modal .flex-1.overflow-y-auto {
+    background-color: rgba(15, 13, 10, 0.35);
+  }
+
+  /* Stronger text shadows inside the transparent card for readability over video */
+  #lunch-modal .flex-1.overflow-y-auto [class*="label-tight"],
+  #dinner-modal .flex-1.overflow-y-auto [class*="label-tight"],
+  #lunch-modal .flex-1.overflow-y-auto .space-y-2 > div,
+  #dinner-modal .flex-1.overflow-y-auto .space-y-2 > div,
+  #lunch-modal .flex-1.overflow-y-auto .space-y-3 > div,
+  #dinner-modal .flex-1.overflow-y-auto .space-y-3 > div {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  /* Ensure sticky header stays above content on all browsers */
+  #lunch-modal .sticky,
+  #dinner-modal .sticky {
+    z-index: 50;
+    background-color: #0F0D0A !important;
+  }
+
+  /* Lower the video and overlays explicitly so they can't cover later content */
+  #lunch-modal video,
+  #dinner-modal video,
+  #lunch-modal .absolute.inset-0,
+  #dinner-modal .absolute.inset-0 {
+    z-index: 1;
+  }
+
+  /* === Modal Background Videos: do NOT fill the entire modal ===
+     Using :global() so the rules are not scoped by Astro and reliably apply
+     to the dynamically managed video elements. */
+  :global(body #lunch-modal-video),
+  :global(body #dinner-modal-video) {
+    /* Make the background videos not completely fill the modals anymore */
+    all: unset !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: 81% !important;
+    height: 81% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover !important;
+    object-position: 50% 40% !important;
+    display: block !important;
+    opacity: 0.38 !important;           /* weniger hell durchscheinend hinter weisser Schrift */
+
+    border-radius: 6px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    will-change: transform;
+    backface-visibility: hidden;
+    z-index: 5 !important;
+  }
+
+  /* Footer (PDF button area): also more transparent to show video */
+  #lunch-modal .p-5.border-t,
+  #dinner-modal .p-5.border-t {
+    background-color: rgba(15, 13, 10, 0.48) !important;
+  }
+
+  /* Prevent pull-to-refresh and background interference when modal is open */
+  body.modal-scroll-locked {
+    overscroll-behavior: none;
+  }
+</style>
