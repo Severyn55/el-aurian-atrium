@@ -77,10 +77,12 @@ import MenuEditor from '../../components/admin/MenuEditor.astro';
 
 <script type="module">
   // Bootstrap: main admin logic moved to src/scripts/admin/speisekarten-admin.ts (Phase 2 refactor)
-  // Use relative import from this page's location (pages/admin/) so Astro can correctly
-  // bundle and rewrite the path with the base URL (/el-aurian-atrium/) in production.
-  // Relative: from pages/admin/ -> ../../scripts/admin/speisekarten-admin
-  import { initSpeisekartenAdmin } from '../../scripts/admin/speisekarten-admin';
+  // Use import.meta.glob to dynamically load the admin script.
+  // The glob specifier is processed by Vite/Astro, so it correctly handles bundling
+  // and the base path in production. This avoids issues with direct import specifiers
+  // in <script type="module"> blocks under subpath deployments.
+  const adminModule = await import.meta.glob('../../scripts/admin/speisekarten-admin.ts', { eager: false })['../../scripts/admin/speisekarten-admin.ts']();
+  const { initSpeisekartenAdmin } = adminModule;
   initSpeisekartenAdmin();
 </script>
 
