@@ -42,20 +42,6 @@ Das Admin-Interface (`/admin/speisekarten`) ermöglicht es dem Betreiber, die In
 ### Weitere Admin-Features
 - Collapsible Editoren
 - Direkter Upload von Markdown-Dateien mit Status-Feedback
-- GitHub-basierte Speicherung und Veröffentlichung
-- Klare, strukturierte Bearbeitungsoberflächen
-
-### Zugang & Nutzung
-
-1. `/admin/speisekarten` öffnen
-2. GitHub PAT (mit Contents: Read & Write) + Repository eingeben
-3. Gewünschten Bereich ausklappen oder „Aktuelle Daten laden“
-4. Bearbeiten (auch per Drag & Drop bei PDFs)
-5. „Speichern“ oder „Hochladen & committen“ → Änderungen live
-
-Der Token wird ausschließlich browserseitig verwendet.
-
-Dieses System ermöglicht es dem Betreiber, Inhalte weitgehend eigenständig zu pflegen.
 
 ---
 
